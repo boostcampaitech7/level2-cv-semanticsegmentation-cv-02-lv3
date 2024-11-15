@@ -103,7 +103,7 @@ def validation(epoch, model, data_loader, criterion, thr=0.5):
     return avg_dice
 
 
-def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_every, saved_dir, model_name):
+def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_every, saved_dir, model_name, seg_model):
     print(f'Start training..')
     
     n_class = len(CLASSES)
@@ -147,7 +147,7 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
                 print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
                 print(f"Save model in {saved_dir}")
                 best_dice = dice
-                save_model(model, saved_dir,  f"{model_name}_best_model.pt")
+                save_model(model, saved_dir,  f"{seg_model}_{model_name}_best_model.pt")
 
 
 # mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 합니다.

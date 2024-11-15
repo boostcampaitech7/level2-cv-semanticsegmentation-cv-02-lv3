@@ -42,6 +42,7 @@ if __name__ == "__main__":
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='resnet101', help='Name of the segmentation model')
     parser.add_argument('--encoder_weights', type=str, default='imagenet', help='encoder weights')
+    parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
     args = parser.parse_args()
 
     load_dotenv()
@@ -49,15 +50,14 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
+    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}",config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
         "valid_batch_size": args.valid_batch_size,
         "model_name": args.model_name
     })
-
-
+    
 if not os.path.exists(args.saved_dir):                                                           
     os.makedirs(args.saved_dir)
 
@@ -107,7 +107,18 @@ valid_loader = DataLoader(
 
 # model
 #model_func = getattr(models.segmentation, args.model_name)
-model = smp.UnetPlusPlus(args.model_name, encoder_weights=args.encoder_weights, in_channels=3, classes=29)
+#model = smp.UnetPlusPlus(args.model_name, encoder_weights=args.encoder_weights, in_channels=3, classes=29)
+seg_model_name = getattr(smp, args.seg_model, None)
+
+if seg_model_name:
+    model = seg_model_name(
+        encoder_name=args.model_name,         # Encoder 이름 (e.g., resnet101, efficientnet-b0)
+        encoder_weights=args.encoder_weights, # Pretrained weights (e.g., imagenet)
+        in_channels=3,                        # 입력 채널 (e.g., RGB)
+        classes=len(CLASSES)                  # 출력 클래스 수
+    )
+else:
+    raise ValueError(f"Segmentation model '{args.seg_model}' is not available in smp.")
 
 #model = model_func(pretrained=True)
 
@@ -123,7 +134,7 @@ optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 # 시드를 설정합니다.
 set_seed()
 
-train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
+train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model)
 
 wandb.finish()
 

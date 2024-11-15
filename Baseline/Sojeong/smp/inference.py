@@ -36,13 +36,14 @@ if __name__ == "__main__":
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='resnet101', help='model name')
     parser.add_argument('--batch_size',type=int,default=8,help='batch_size')
+    parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
     
     args = parser.parse_args()
 
 if not os.path.exists('output'):                                                           
     os.makedirs('output')
 
-model = torch.load(os.path.join(args.saved_dir, f"{args.model_name}_best_model.pt"))
+model = torch.load(os.path.join(args.saved_dir, f"{args.seg_model}_{args.model_name}_best_model.pt"))
 
 tf = A.Resize(512, 512)
 
@@ -68,6 +69,6 @@ df = pd.DataFrame({
     "rle": rles,
 })
 
-df.to_csv(f"output/{args.model_name}_output.csv", index=False)
+df.to_csv(f"output/{args.seg_model}_{args.model_name}_output.csv", index=False)
 
 # python inference.py
