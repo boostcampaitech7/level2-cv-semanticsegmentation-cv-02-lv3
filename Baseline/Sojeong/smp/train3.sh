@@ -1,18 +1,21 @@
-python train.py \
+python train2.py \
     --epochs 80 \
     --batch_size 2 \
     --valid_batch_size 2 \
-    --model_name tu-resnext101_32x16d \
+    --model_name tu-xception71 \
     --val_every 10 \
     --encoder_weights imagenet \
     --seg_model UnetPlusPlus \
+    --decoder_attention_type scse \
+    --activation softmax \
 
 python inference.py \
-    --model_name tu-resnext101_32x16d \
+    --model_name tu-xception71 \
     --seg_model UnetPlusPlus \
-
 # chmod +x train3.sh
 # ./train3.sh
+
+#encoder_output_stride = 8로
 
 # 이후에 
 # efficientnet-b4

@@ -1,15 +1,15 @@
 python train.py \
     --epochs 80 \
-    --batch_size 2 \
-    --valid_batch_size 2 \
-    --model_name timm-efficientnet-b7 \
+    --batch_size 4 \
+    --valid_batch_size 4 \
+    --model_name tu-resnext101_32x16d \
     --val_every 10 \
-    --encoder_weights noisy-student \
-    --seg_model UnetPlusPlus \
+    --encoder_weights imagenet \
+    --seg_model DeepLabV3Plus \
 
 python inference.py \
-    --model_name timm-efficientnet-b7 \
-    --seg_model UnetPlusPlus \
+    --model_name tu-resnext101_32x16d7 \
+    --seg_model DeepLabV3Plus \
 
 
 # chmod +x train5.sh

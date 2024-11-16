@@ -44,6 +44,8 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', type=str, default='resnet101', help='Name of the segmentation model')
     parser.add_argument('--encoder_weights', type=str, default='imagenet', help='encoder weights')
     parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
+    parser.add_argument('--decoder_attention_type', type=str, default='None', help='Decoder attention type')
+    parser.add_argument('--activation', type=str, default='None', help='Activation function')
     args = parser.parse_args()
 
     load_dotenv()
@@ -51,12 +53,18 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}",config={
+    wandb.init(entity="luckyvicky",
+               project="segmentation", 
+               name=f"{args.seg_model}_{args.model_name}{'_scse' if args.decoder_attention_type == 'scse' else ''}{args.activation if args.activation != None else ''}",
+               config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
         "valid_batch_size": args.valid_batch_size,
-        "model_name": args.model_name
+        "model_name": args.model_name,
+        "seg_model": args.seg_model,
+        "decoder_attention_type": args.decoder_attention_type,
+        "activation": args.activation
     })
     
 if not os.path.exists(args.saved_dir):                                                           
@@ -115,8 +123,10 @@ if seg_model_name:
     model = seg_model_name(
         encoder_name=args.model_name,         # Encoder 이름 (e.g., resnet101, efficientnet-b0)
         encoder_weights=args.encoder_weights, # Pretrained weights (e.g., imagenet)
+        decoder_attention_type= args.decoder_attention_type,
         in_channels=3,                        # 입력 채널 (e.g., RGB)
-        classes=len(CLASSES)                  # 출력 클래스 수
+        classes=len(CLASSES),                  # 출력 클래스 수
+        activation=args.activation
     )
 else:
     raise ValueError(f"Segmentation model '{args.seg_model}' is not available in smp.")
