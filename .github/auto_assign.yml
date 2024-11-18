@@ -6,7 +6,8 @@ addAssignees: author
 
 # Reviewer 추가할 사용자 목록
 reviewers:
-  - @boostcampaitech7/CV-02-lv3
+  - cyndii20
+  - Soojeoong
   
 # 추가할 리뷰어 수
 # 0으로 설정하면 그룹 내 모든 리뷰어를 추가합니다 (기본값: 0)
