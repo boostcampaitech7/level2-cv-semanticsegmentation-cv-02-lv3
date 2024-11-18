@@ -46,6 +46,7 @@ if __name__ == "__main__":
     parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
     parser.add_argument('--resize', type=int, nargs=2, default=[512, 512], help='Resize dimensions: height width')
     parser.add_argument('--json_dir', type=str, default='../Data/train_valid_split/splits', help='train_valid_split_dir')
+    parser.add_argument('--fold', type=int,default=0,help='split_k_fold_0')
     args = parser.parse_args()
 
     load_dotenv()
@@ -84,10 +85,8 @@ def set_seed():
     np.random.seed(RANDOM_SEED)
     random.seed(RANDOM_SEED)
 
-# 특정 fold 파일 불러오기
-fold_idx = 0  # 원하는 fold index를 지정
 # json 파일 경로 지정
-split_file = args.json_dir+f'/fold_{fold_idx}.json'
+split_file = args.json_dir+f'/fold_{args.fold}.json'
 
 
 # dataset

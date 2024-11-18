@@ -43,7 +43,7 @@ if __name__ == "__main__":
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='fcn_resnet50', help='Name of the segmentation model')
     parser.add_argument('--json_dir', type=str, default='../Data/train_valid_split/splits', help='train_valid_split_dir')
-    
+    parser.add_argument('--fold', type=int,default=0,help='split_k_fold_0')
     args = parser.parse_args()
 
     load_dotenv()
@@ -83,10 +83,8 @@ def set_seed():
     np.random.seed(RANDOM_SEED)
     random.seed(RANDOM_SEED)
 
-# 특정 fold 파일 불러오기
-fold_idx = 0  # 원하는 fold index를 지정
 # json 파일 경로 지정
-split_file = args.json_dir+f'/fold_{fold_idx}.json'
+split_file = args.json_dir+f'/fold_{args.fold}.json'
 
 # dataset
 tf = A.Resize(512, 512)
