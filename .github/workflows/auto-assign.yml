@@ -1,0 +1,22 @@
+name: Auto Assign
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wow-actions/auto-assign@v3
+        with:
+          GITHUB_TOKEN: "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"
+          # using the `org/team_slug` or `/team_slug` syntax to add git team as reviewers
+          reviewers: |
+            stop0729
+            cyndii20
+            Soojeoong
+            yjs616
+            jinlee24
+            sng-tory
+            boostcampaitech7/CV-02-lv3
+          assignees: author
+          skipKeywords: wip, draft
