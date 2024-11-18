@@ -6,6 +6,9 @@ on:
 jobs:
   assign-reviewers:
     runs-on: ubuntu-latest
+    permissions: # 권한 설정
+      contents: read
+      pull-requests: write
     steps:
       - name: "Assign Team and Persons"
         uses: rowi1de/auto-assign-review-teams@v1.1.3
