@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', type=str, default='resnet101', help='Name of the segmentation model')
     parser.add_argument('--encoder_weights', type=str, default='imagenet', help='encoder weights')
     parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
+    parser.add_argument('--resize', type=int, nargs=2, default=[512, 512], help='Resize dimensions: height width')
     args = parser.parse_args()
 
     load_dotenv()
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}",config={
+    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}",config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
@@ -83,7 +84,9 @@ def set_seed():
     random.seed(RANDOM_SEED)
 
 # dataset
-tf = A.Resize(512, 512)
+#tf = A.Resize(512, 512)
+resize_height, resize_width = args.resize
+tf = A.Resize(resize_height, resize_width)
 train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf)
 valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf)
 
@@ -107,8 +110,6 @@ valid_loader = DataLoader(
 
 
 # model
-#model_func = getattr(models.segmentation, args.model_name)
-#model = smp.UnetPlusPlus(args.model_name, encoder_weights=args.encoder_weights, in_channels=3, classes=29)
 seg_model_name = getattr(smp, args.seg_model, None)
 
 if seg_model_name:
@@ -121,11 +122,6 @@ if seg_model_name:
 else:
     raise ValueError(f"Segmentation model '{args.seg_model}' is not available in smp.")
 
-#model = model_func(pretrained=True)
-
-# output class 개수를 dataset에 맞도록 수정합니다.
-#model.classifier[4] = nn.Conv2d(512, len(CLASSES), kernel_size=1)
-
 # Loss function을 정의합니다.
 criterion = nn.BCEWithLogitsLoss()
 
@@ -135,7 +131,7 @@ optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 # 시드를 설정합니다.
 set_seed()
 
-train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model)
+train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model, args.resize, args.batch_size)
 
 wandb.finish()
 

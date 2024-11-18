@@ -37,15 +37,17 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', type=str, default='resnet101', help='model name')
     parser.add_argument('--batch_size',type=int,default=8,help='batch_size')
     parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
+    parser.add_argument('--resize', type=int, nargs=2, default=[512, 512], help='Resize dimensions: height width')
+    parser.add_argument('--train_batch', type=int, default=8, help='Train batch size')
     
     args = parser.parse_args()
 
 if not os.path.exists('output'):                                                           
     os.makedirs('output')
 
-model = torch.load(os.path.join(args.saved_dir, f"{args.seg_model}_{args.model_name}_best_model.pt"))
+model = torch.load(os.path.join(args.saved_dir, f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_best_model.pt"))
 
-tf = A.Resize(512, 512)
+tf = A.Resize(args.resize[0], args.resize[1])
 
 test_dataset = XRayInferenceDataset(image_root=args.image_root,transforms=tf)
 
@@ -69,6 +71,6 @@ df = pd.DataFrame({
     "rle": rles,
 })
 
-df.to_csv(f"output/{args.seg_model}_{args.model_name}_output.csv", index=False)
+df.to_csv(f"output/{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_output.csv", index=False)
 
 # python inference.py
