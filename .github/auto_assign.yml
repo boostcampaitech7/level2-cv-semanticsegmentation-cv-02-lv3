@@ -16,3 +16,8 @@ numberOfReviewers: 0
 # Pull Request에 아래 키워드가 포함되어 있으면 리뷰어 추가 프로세스를 건너뜁니다
 skipKeywords:
   - exclude-review # 리뷰를 제외할 키워드 설정
+
+# 권한 설정
+permissions:
+  contents: read
+  pull-requests: write
