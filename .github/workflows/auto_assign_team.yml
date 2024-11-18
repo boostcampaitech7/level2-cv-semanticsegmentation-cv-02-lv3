@@ -10,9 +10,10 @@ jobs:
       - name: "Assign Team and Persons"
         uses: rowi1de/auto-assign-review-teams@v1.1.3
         with:
-          repo-token: ${{ secrets.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 }}
+          repo-token: ${{ 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 }}
           org: "boostcampaitech7" #only needed for  pick-one-from-persons-or-team=true
           teams: "CV-02-lv3" # only works for GitHub Organisation/Teams
           include-draft: false # Draft PRs will be skipped (default: false)
           skip-with-manual-reviewers: 0 # Skip this action, if the number of reviwers was already assigned (default: 0)
           pick-one-from-persons-or-team: false # Will pick out one reviewer from persons and/or the first GitHub team and "org" set (default: false)
+
