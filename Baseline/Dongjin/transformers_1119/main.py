@@ -1,5 +1,6 @@
 import utils, os
 from argparse import ArgumentParser
+from train import train
 
 def parse_args():
     parser = ArgumentParser()
@@ -35,3 +36,5 @@ if __name__ == '__main__':
     utils.save_json(conf, save_conf_path)
 
     # 학습 시작
+    train(conf)
+

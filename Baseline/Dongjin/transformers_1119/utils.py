@@ -36,3 +36,8 @@ def renew_if_path_exist(path, num_try=100000):
                 
         raise Exception("path 지정을 실패했습니다.")
 
+
+def combine_paths(base_path, rel_paths):
+    # 여러 상대 경로를 절대 경로로 변경하기
+    paths = [os.path.join(base_path, rel_path) for rel_path in rel_paths]
+    return paths
