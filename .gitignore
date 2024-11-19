@@ -6,4 +6,3 @@ wandb/
 *.pth
 checkpoints/
 output/
-logs/
