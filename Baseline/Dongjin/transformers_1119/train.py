@@ -6,8 +6,16 @@ import albumentations as A
 from tqdm import tqdm
 
 import utils
+import torch
 
 
+def dice_coef(y_true, y_pred):
+    y_true_f = y_true.flatten(2)
+    y_pred_f = y_pred.flatten(2)
+    intersection = torch.sum(y_true_f * y_pred_f, -1)
+    
+    eps = 0.0001
+    return (2. * intersection + eps) / (torch.sum(y_true_f, -1) + torch.sum(y_pred_f, -1) + eps)
 
 
 class Trainer:
@@ -16,7 +24,7 @@ class Trainer:
         self.load_dataloader() # train_loader, valid_loader 준비
         self.load_model_and_optimizer() # model과 optimizer 준비
 
-    def train_valid(self, mode='train'):
+    def train_valid(self, mode='train', ):
         losses = []
         
         if mode == 'train':
@@ -29,6 +37,7 @@ class Trainer:
 
         with tqdm(self.train_loader, unit="batch") as tepoch:
             for batch in tepoch:
+                if mode == 'train':
                 self.optimizer.zero_grad()
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
@@ -38,10 +47,9 @@ class Trainer:
                 label_h, label_w = labels.size(-2), labels.size(-1)
 
                 if output_h != label_h or output_w != label_w:
-                    outputs_resize = nn.functional.interpolate(outputs, size=(label_h, label_w), mode="bilinear")
+                    outputs = nn.functional.interpolate(outputs, size=(label_h, label_w), mode="bilinear")
 
-
-                loss = self.loss_func(outputs_resize, labels)
+                loss = self.loss_func(outputs, labels)
                 loss_item = loss.item()
                 losses.append(loss_item)
 
