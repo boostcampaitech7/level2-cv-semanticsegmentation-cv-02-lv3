@@ -9,21 +9,47 @@ import utils
 
 
 
-def upsampling(input, output_size):
-    output = nn.functional.interpolate(
-            input,
-            size=output_size,
-            mode="bilinear")
-    
-    return output
-
-
 
 class Trainer:
     def __init__(self, conf):
         self.conf = conf
         self.load_dataloader() # train_loader, valid_loader 준비
         self.load_model_and_optimizer() # model과 optimizer 준비
+
+    def train_valid(self, mode='train'):
+        losses = []
+        
+        if mode == 'train':
+            self.model.train()
+        elif mode == 'valid':
+            self.model.eval()
+        else:
+            raise(Exception(f"{mode} is not valid"))
+
+
+        with tqdm(self.train_loader, unit="batch") as tepoch:
+            for batch in tepoch:
+                self.optimizer.zero_grad()
+                inputs = batch["pixel_values"].to(self.conf['device'])
+                labels = batch["labels"].to(self.conf['device'])
+                outputs = self.mode(inputs).logits
+
+                output_h, output_w = outputs.size(-2), outputs.size(-1)
+                label_h, label_w = labels.size(-2), labels.size(-1)
+
+                if output_h != label_h or output_w != label_w:
+                    outputs_resize = nn.functional.interpolate(outputs, size=(label_h, label_w), mode="bilinear")
+
+
+                loss = self.loss_func(outputs_resize, labels)
+                loss_item = loss.item()
+                losses.append(loss_item)
+
+                loss.backward()
+                self.optimizer.step()
+                tepoch.set_postfix(loss_item)
+
+        avg_loss = utils.average(losses)
 
     def train(self):
         for epoch in range(self.conf['max_epoch']):
