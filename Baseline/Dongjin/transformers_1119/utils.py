@@ -1,6 +1,14 @@
 import os
 import json
 import re
+import shutil
+import torch
+import numpy as np
+import random
+import subprocess
+import wandb
+from dotenv import load_dotenv
+
 
 def read_json(file_path):
     with open(file_path, "r") as f:
@@ -42,5 +50,42 @@ def combine_paths(base_path, rel_paths):
     paths = [os.path.join(base_path, rel_path) for rel_path in rel_paths]
     return paths
 
+
 def average(arr):
     return sum(arr) / len(arr)
+
+
+def get_dirs_in_path(path):
+    ret_paths = []
+    dirs = os.listdir(path)
+
+    for dir in dirs:
+        new_path = os.path.join(path, dir)
+        if os.path.isdir(new_path):
+            ret_paths.append(new_path)
+
+    return ret_paths
+
+
+def remove_dir_paths(paths):
+    for path in paths:
+        shutil.rmtree(path)
+
+def set_seed():
+    RANDOM_SEED = 42
+    torch.manual_seed(RANDOM_SEED)
+    torch.cuda.manual_seed(RANDOM_SEED)
+    torch.cuda.manual_seed_all(RANDOM_SEED) # if use multi-GPU
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(RANDOM_SEED)
+    random.seed(RANDOM_SEED)
+
+
+def load_wandb(conf):
+    load_dotenv()
+    WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
+    subprocess.call(f"wandb login {WANDB_API_KEY}", shell=True)
+    wandb.init()
+    wandb.run.name = conf['run_name']
+    wandb.config.update(conf)

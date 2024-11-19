@@ -1,9 +1,6 @@
 import utils, os
 from argparse import ArgumentParser
 from train import Trainer
-from dotenv import load_dotenv
-import subprocess
-import wandb
 
 def parse_args():
     parser = ArgumentParser()
@@ -27,6 +24,7 @@ if __name__ == '__main__':
     # 실험조건 불러오기
     conf = utils.load_conf(work_dir_path=work_dir_path, rel_exp_path=exp_path) 
     conf['work_dir_path'] = work_dir_path
+    conf['run_name'] = conf['run_name_format'].format(**conf)
 
     # model_dir 및 run_name 겹침 여부 확인 및 수정
     conf['model_dir_path'] = os.path.join(work_dir_path, f"trained_models/{conf['run_name']}")
@@ -38,17 +36,13 @@ if __name__ == '__main__':
     os.makedirs(conf['model_dir_path'], exist_ok=True)
     utils.save_json(conf, save_conf_path)
 
-    # wandb 불러오기
+    # wandb 설정
     # if conf['debug'] == False:
-    load_dotenv()
-    WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
-    subprocess.call(f"wandb login {WANDB_API_KEY}", shell=True)
-    wandb.init()
-    wandb.run.name = conf['run_name']
-    wandb.config.update(conf)
-
+    utils.load_wandb(conf)
+    
 
     # 학습 시작
+    utils.set_seed() # seed 고정
     trainer = Trainer(conf)
     trainer.train()
 

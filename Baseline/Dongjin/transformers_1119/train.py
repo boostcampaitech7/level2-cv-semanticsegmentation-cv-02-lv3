@@ -38,13 +38,17 @@ class Trainer:
             with torch.no_grad():
                 valid_log = self.train_valid(epoch, mode='valid', thr=0.5)
 
-            
+            # model 저장
             if best_valid_dice < valid_log['dice']:
+                # model_dir_path에 존재하는 모델(폴더) 삭제
+                remove_paths = utils.get_dirs_in_path(self.conf['model_dir_path'])
+                utils.remove_dir_paths(remove_paths)
+
+                # best_valid_dice 업데이트 및 모델 저장
                 best_valid_dice = valid_log['dice']
-                save_path = os.path.join(self.conf['model_dir_path'], f'ep_{epoch}_dice_{best_valid_dice:.4f}')
-                self.save_model(save_path)
-                                         
-                print(f'New best_valid_dice is achieved: {best_valid_dice:.4f} - {save_path}')                        
+                save_path = os.path.join(self.conf['model_dir_path'], f'ep_{epoch}_vdice_{best_valid_dice:.4f}')
+                self.save_model(save_path)              
+                print(f'New best_valid_dice: {best_valid_dice:.4f} - save path: {save_path}')                        
 
             # 로그 출력 및 기록
             self.log(epoch, train_log, valid_log) 
@@ -62,19 +66,25 @@ class Trainer:
         print(f'{epoch} - {mode} start')
 
         if mode == 'train':
-            self.model.train()
-            loader = self.train_loader
+            self.model.train() # train mode
+            self.optimizer.zero_grad() # gradient 초기화 
+            loader = self.train_loader # loader 정의
+
+            # step gradient 계산 결과를 모아서 업데이트
+            accumulation_steps = self.conf['batch_size'] // self.conf['step_batch_size']
+            if self.conf['batch_size'] % self.conf['step_batch_size'] != 0:
+                raise(Exception("Check batch_size and step_batch_size!"))
+
         elif mode == 'valid':
             self.model.eval()
             loader = self.valid_loader
-        else:
+            accumulation_steps = 1 # validation은 accumulation 기능을 사용하지 않음
+
+        else: # mode가 train, valid가 아니면 오류 처리
             raise(Exception(f"{mode} is not valid"))
 
         with tqdm(loader, unit="batch") as tepoch:
-            for batch in tepoch:
-                if mode == 'train': # train이면 graident 초기화
-                    self.optimizer.zero_grad()
-
+            for i, batch in enumerate(tepoch):
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
                 outputs = self.model(inputs).logits
@@ -82,23 +92,29 @@ class Trainer:
                 output_h, output_w = outputs.size(-2), outputs.size(-1)
                 label_h, label_w = labels.size(-2), labels.size(-1)
 
-                # label과 output size가 다르면 upsampling
+                # label과 output의 높이, 너비가 다르면 upsampling
                 if output_h != label_h or output_w != label_w:
                     outputs = nn.functional.interpolate(outputs, size=(label_h, label_w), mode="bilinear")
 
                 loss = self.loss_func(outputs, labels)
                 loss_item = loss.item()
-                losses.append(loss_item)
+                loss = loss / accumulation_steps # gradient accumulation 기능
                 
-                if mode == 'train': # train이면 gradient 계산 및 업데이트
+                if mode == 'train': # train이면 gradient 계산
                     loss.backward()
+
+                # accumulation step만큼 gradient를 모은 후 업데이트
+                if mode == 'train' and (i+1) % accumulation_steps == 0: 
                     self.optimizer.step()
+                    self.optimizer.zero_grad()
 
                 outputs = torch.sigmoid(outputs)
                 outputs = (outputs > thr)
 
                 dice = dice_coef(outputs, labels)
                 dices.append(dice.detach().cpu())
+
+                losses.append(loss_item)
                 tepoch.set_postfix(loss=loss_item)
 
         # 손실 평균
@@ -122,7 +138,7 @@ class Trainer:
 
  
     def log(self, epoch, train_log, valid_log):
-        log_path = os.path.join(self.conf['model_dir_path'], 'log.json')
+        log_path = os.path.join(self.conf['model_dir_path'], 'log.csv')
 
         if os.path.exists(log_path):
             logs = utils.read_json(log_path)
@@ -136,13 +152,10 @@ class Trainer:
             dicts['valid_'+k] = v
 
         logs['epoch'][epoch] = dicts
-        print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_dice']:4f}, valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
+        print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:.4f}, train_dice: {dicts['train_dice']:.4f}, valid_loss: {dicts['valid_loss']:.4f}, valid_dice: {dicts['valid_dice']:.4f}")
         
         wandb.log(dicts)
         utils.save_json(logs, log_path)
-
-        
-
 
 
     def load_train_transforms(self):
@@ -171,8 +184,8 @@ class Trainer:
                                     data_info_path=self.conf['valid_json_path'],
                                     debug=self.conf['debug'])
         
-        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['batch_size'], shuffle=True, num_workers=self.conf['num_workers'])
-        self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
+        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['step_batch_size'], shuffle=True, num_workers=self.conf['num_workers'])
+        self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['step_batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
     
 
     def load_model(self):
