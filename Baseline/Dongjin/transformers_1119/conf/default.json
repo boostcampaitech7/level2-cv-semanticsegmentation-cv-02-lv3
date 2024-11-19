@@ -1,10 +1,10 @@
 {
-    "run_name_format": "{model_name}",
+    "run_name_format": "{model_name}_step_batch_{step_batch_size}",
     "num_workers": 8,
     "batch_size": 8,
-    "step_batch_size": 2,
+    "step_batch_size": 8,
     "learning_rate": 1e-4,
-    "max_epoch": 2,
+    "max_epoch": 1,
     "model_name": "nvidia/mit-b2",
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
@@ -12,5 +12,5 @@
     "test_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/test_path/test.json",
     "pretrained_path": null,
     "device": "cuda",
-    "debug": true
+    "debug": false
 }

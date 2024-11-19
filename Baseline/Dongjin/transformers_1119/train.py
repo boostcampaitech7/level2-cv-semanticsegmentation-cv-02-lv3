@@ -138,7 +138,7 @@ class Trainer:
 
  
     def log(self, epoch, train_log, valid_log):
-        log_path = os.path.join(self.conf['model_dir_path'], 'log.csv')
+        log_path = os.path.join(self.conf['model_dir_path'], 'log.json')
 
         if os.path.exists(log_path):
             logs = utils.read_json(log_path)

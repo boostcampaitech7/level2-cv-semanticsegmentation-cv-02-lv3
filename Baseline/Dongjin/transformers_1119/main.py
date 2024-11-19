@@ -4,7 +4,7 @@ from train import Trainer
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('--exp_path', type=str, default=None) # 
+    parser.add_argument('--exp_path', type=str, default=None) 
     args = parser.parse_args()
     return args
 
@@ -35,11 +35,8 @@ if __name__ == '__main__':
     save_conf_path = os.path.join(conf['model_dir_path'], 'exp.json')
     os.makedirs(conf['model_dir_path'], exist_ok=True)
     utils.save_json(conf, save_conf_path)
-
-    # wandb 설정
-    # if conf['debug'] == False:
-    utils.load_wandb(conf)
     
+    utils.load_wandb(conf) # wandb 설정
 
     # 학습 시작
     utils.set_seed() # seed 고정
