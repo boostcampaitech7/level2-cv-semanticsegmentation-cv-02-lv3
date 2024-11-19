@@ -31,7 +31,7 @@ from trainer import test
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a simple CNN on MNIST")
+    parser = argparse.ArgumentParser(description="Train segmentation model")
     parser.add_argument('--image_root', type=str,default='../../data/test/DCM',help='image root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='fcn_resnet50', help='model name')
