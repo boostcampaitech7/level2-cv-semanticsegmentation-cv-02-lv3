@@ -63,12 +63,14 @@ class Trainer:
 
         if mode == 'train':
             self.model.train()
+            loader = self.train_loader
         elif mode == 'valid':
             self.model.eval()
+            loader = self.valid_loader
         else:
             raise(Exception(f"{mode} is not valid"))
 
-        with tqdm(self.train_loader, unit="batch") as tepoch:
+        with tqdm(loader, unit="batch") as tepoch:
             for batch in tepoch:
                 if mode == 'train': # train이면 graident 초기화
                     self.optimizer.zero_grad()
