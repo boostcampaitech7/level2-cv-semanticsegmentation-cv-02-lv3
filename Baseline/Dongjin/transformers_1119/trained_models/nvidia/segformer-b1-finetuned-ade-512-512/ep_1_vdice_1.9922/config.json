@@ -1,16 +1,16 @@
 {
-  "_name_or_path": "nvidia/mit-b2",
+  "_name_or_path": "nvidia/segformer-b1-finetuned-ade-512-512",
   "architectures": [
     "SegformerForSemanticSegmentation"
   ],
   "attention_probs_dropout_prob": 0.0,
   "classifier_dropout_prob": 0.1,
-  "decoder_hidden_size": 768,
+  "decoder_hidden_size": 256,
   "depths": [
-    3,
-    4,
-    6,
-    3
+    2,
+    2,
+    2,
+    2
   ],
   "downsampling_rates": [
     1,

@@ -21,6 +21,7 @@ queue_path = os.path.join(queue_fold_path, queue_file_name)
 now = datetime.datetime.now
 run_cnt = 0
 util = Util(queue_path, "", server_name)
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
 
 while True:
     try:

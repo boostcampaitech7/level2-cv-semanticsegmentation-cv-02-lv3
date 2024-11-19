@@ -1,11 +1,11 @@
 {
-    "run_name_format": "{model_name}_step_batch_{step_batch_size}",
+    "run_name_format": "{model_name}",
     "num_workers": 8,
     "batch_size": 8,
     "step_batch_size": 8,
     "learning_rate": 0.0001,
-    "max_epoch": 1,
-    "model_name": "nvidia/mit-b2",
+    "max_epoch": 30,
+    "model_name": "shi-labs/oneformer_coco_swin_large",
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
@@ -14,6 +14,6 @@
     "device": "cuda",
     "debug": false,
     "work_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119",
-    "run_name": "mit-b2_step_batch_8",
-    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/nvidia/mit-b2_step_batch_8"
+    "run_name": "oneformer_coco_swin_large",
+    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/shi-labs/oneformer_coco_swin_large"
 }

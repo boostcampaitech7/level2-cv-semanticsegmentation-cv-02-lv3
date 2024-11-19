@@ -1,6 +1,6 @@
 {
   "do_normalize": true,
-  "do_reduce_labels": false,
+  "do_reduce_labels": true,
   "do_rescale": true,
   "do_resize": true,
   "image_mean": [

@@ -9,6 +9,7 @@ import utils
 import torch
 import os
 import wandb
+import time
 
 
 def dice_coef(y_true, y_pred):
@@ -64,6 +65,7 @@ class Trainer:
         dices = []
 
         print(f'{epoch} - {mode} start')
+        start = time.time()
 
         if mode == 'train':
             self.model.train() # train mode
@@ -124,14 +126,15 @@ class Trainer:
         dices = torch.cat(dices, 0)
         dices_per_class = torch.mean(dices, 0)
         avg_dice = torch.mean(dices_per_class).item()
-
         dicts = {c: v.item() for c, v in zip(self.xray_classes['classes'], dices_per_class)}
 
         results = {}
         results['loss'] = avg_loss
         results['dice'] = avg_dice
         results['dices_per_class'] = dicts
+        results['run_time'] = time.time() - start 
 
+        print(f"Run time: {results['run_time']}")
         return results
      
     
@@ -192,9 +195,10 @@ class Trainer:
         self.xray_classes = get_xray_classes()
         self.model = AutoModelForSemanticSegmentation.from_pretrained(
                     self.conf['model_name'],
+                    ignore_mismatched_sizes=True,
                     num_labels=self.xray_classes['num_class'],
                     id2label=self.xray_classes['idx2class'],
-                    label2id=self.xray_classes['class2idx']).to(self.conf['device'])
+                    label2id=self.xray_classes['class2idx']).to(self.conf['device'],)
 
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.conf['learning_rate'])
         self.loss_func = nn.BCEWithLogitsLoss()
