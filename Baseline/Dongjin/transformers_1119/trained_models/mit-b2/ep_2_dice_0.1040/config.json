@@ -1,0 +1,132 @@
+{
+  "_name_or_path": "nvidia/mit-b2",
+  "architectures": [
+    "SegformerForSemanticSegmentation"
+  ],
+  "attention_probs_dropout_prob": 0.0,
+  "classifier_dropout_prob": 0.1,
+  "decoder_hidden_size": 768,
+  "depths": [
+    3,
+    4,
+    6,
+    3
+  ],
+  "downsampling_rates": [
+    1,
+    4,
+    8,
+    16
+  ],
+  "drop_path_rate": 0.1,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.0,
+  "hidden_sizes": [
+    64,
+    128,
+    320,
+    512
+  ],
+  "id2label": {
+    "0": "finger-1",
+    "1": "finger-2",
+    "2": "finger-3",
+    "3": "finger-4",
+    "4": "finger-5",
+    "5": "finger-6",
+    "6": "finger-7",
+    "7": "finger-8",
+    "8": "finger-9",
+    "9": "finger-10",
+    "10": "finger-11",
+    "11": "finger-12",
+    "12": "finger-13",
+    "13": "finger-14",
+    "14": "finger-15",
+    "15": "finger-16",
+    "16": "finger-17",
+    "17": "finger-18",
+    "18": "finger-19",
+    "19": "Trapezium",
+    "20": "Trapezoid",
+    "21": "Capitate",
+    "22": "Hamate",
+    "23": "Scaphoid",
+    "24": "Lunate",
+    "25": "Triquetrum",
+    "26": "Pisiform",
+    "27": "Radius",
+    "28": "Ulna"
+  },
+  "image_size": 224,
+  "initializer_range": 0.02,
+  "label2id": {
+    "Capitate": 21,
+    "Hamate": 22,
+    "Lunate": 24,
+    "Pisiform": 26,
+    "Radius": 27,
+    "Scaphoid": 23,
+    "Trapezium": 19,
+    "Trapezoid": 20,
+    "Triquetrum": 25,
+    "Ulna": 28,
+    "finger-1": 0,
+    "finger-10": 9,
+    "finger-11": 10,
+    "finger-12": 11,
+    "finger-13": 12,
+    "finger-14": 13,
+    "finger-15": 14,
+    "finger-16": 15,
+    "finger-17": 16,
+    "finger-18": 17,
+    "finger-19": 18,
+    "finger-2": 1,
+    "finger-3": 2,
+    "finger-4": 3,
+    "finger-5": 4,
+    "finger-6": 5,
+    "finger-7": 6,
+    "finger-8": 7,
+    "finger-9": 8
+  },
+  "layer_norm_eps": 1e-06,
+  "mlp_ratios": [
+    4,
+    4,
+    4,
+    4
+  ],
+  "model_type": "segformer",
+  "num_attention_heads": [
+    1,
+    2,
+    5,
+    8
+  ],
+  "num_channels": 3,
+  "num_encoder_blocks": 4,
+  "patch_sizes": [
+    7,
+    3,
+    3,
+    3
+  ],
+  "reshape_last_stage": true,
+  "semantic_loss_ignore_index": 255,
+  "sr_ratios": [
+    8,
+    4,
+    2,
+    1
+  ],
+  "strides": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "torch_dtype": "float32",
+  "transformers_version": "4.46.2"
+}

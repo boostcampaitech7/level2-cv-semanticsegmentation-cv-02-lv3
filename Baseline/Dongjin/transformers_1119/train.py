@@ -136,7 +136,7 @@ class Trainer:
             dicts['valid_'+k] = v
 
         logs['epoch'][epoch] = dicts
-        print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}, valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
+        print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_dice']:4f}, valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
         
         wandb.log(dicts)
         utils.save_json(logs, log_path)
