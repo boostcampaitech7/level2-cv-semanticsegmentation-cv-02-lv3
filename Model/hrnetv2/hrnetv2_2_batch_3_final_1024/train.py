@@ -4,6 +4,7 @@ import json
 import random
 import datetime
 from functools import partial
+from dotenv import load_dotenv
 
 # external library
 import cv2
@@ -48,7 +49,9 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    wandb.login(key='20d1785377e44f31398f69001bf14ef2fbc0e235')
+    load_dotenv()
+    wandb_api_key = os.getenv('WANDB_API_KEY')
+    wandb.login(key=wandb_api_key)
     # wandb 초기화
     wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
         "epochs": args.epochs,
