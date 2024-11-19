@@ -26,13 +26,13 @@ if __name__ == '__main__':
     conf['work_dir_path'] = work_dir_path
 
     # model_dir 및 run_name 겹침 여부 확인 및 수정
-    conf['model_dir'] = os.path.join(work_dir_path, f"trained_models/{conf['run_name']}")
-    conf['model_dir'] = utils.renew_if_path_exist(conf['model_dir'])
-    conf['run_name'] = os.path.basename(conf['model_dir'])
+    conf['model_dir_path'] = os.path.join(work_dir_path, f"trained_models/{conf['run_name']}")
+    conf['model_dir_path'] = utils.renew_if_path_exist(conf['model_dir_path'])
+    conf['run_name'] = os.path.basename(conf['model_dir_path'])
 
     # 실험 조건 저장
-    save_conf_path = os.path.join(conf['model_dir'], 'exp.json')
-    os.makedirs(conf['model_dir'], exist_ok=True)
+    save_conf_path = os.path.join(conf['model_dir_path'], 'exp.json')
+    os.makedirs(conf['model_dir_path'], exist_ok=True)
     utils.save_json(conf, save_conf_path)
 
     # 학습 시작

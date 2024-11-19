@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 import utils
 import torch
+import os
 
 
 def dice_coef(y_true, y_pred):
@@ -24,10 +25,27 @@ class Trainer:
         self.load_dataloader() # train_loader, valid_loader 준비
         self.load_model() # model, optimzier, loss function 준비
 
-    def train_valid(self, mode='train', thr=0.5):
+
+    def train(self):
+        for epoch in range(1, self.conf['max_epoch']+1):
+            losses = []
+            # train 실행 
+            train_log = self.train_valid(epoch, mode='train', thr=0.5)
+            
+            # valid 실행
+            with torch.no_grad():
+                valid_log = self.train_valid(epoch, mode='valid', thr=0.5)
+
+            # 로그 출력 및 기록
+            self.log(epoch, train_log, valid_log) 
+
+
+    def train_valid(self, epoch, mode='train', thr=0.5):
         losses = []
         dices = []
-        
+
+        print(f'{epoch} - {mode} start')
+
         if mode == 'train':
             self.model.train()
         elif mode == 'valid':
@@ -80,34 +98,27 @@ class Trainer:
         results['dices_per_class'] = dices_per_class
 
         return results
-
-
-
-    def train(self):
-        for epoch in range(self.conf['max_epoch']):
-            losses = []
-            print(f'epoch: {epoch+1} - train')
-            train_log = self.train_valid(mode='train', thr=0.5)
-
-            print(f'epoch: {epoch+1} - valid')
-            with torch.no_grad():
-                valid_log = self.train_valid(mode='valid', thr=0.5)
-
-            self.log(epoch, train_log, valid_log)
-    
+     
+ 
     def log(self, epoch, train_log, valid_log):
-        dicts = {}
-        dicts['epoch'] = epoch+1
+        log_path = os.path.join(self.conf['model_dir_path'], 'log.json')
 
+        if os.path.exists(log_path):
+            logs = utils.read_json(log_path)
+        else:
+            logs = {'epoch': {}}
+        
+        dicts = {}
         for k, v in train_log.items():
             dicts['train_'+k] = v
         for k, v in valid_log.items():
             dicts['valid_'+k] = v
 
-        print(f'epoch: {dicts['epoch']} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}')
+        logs['epoch'][epoch] = dicts
+        utils.save_json(logs, log_path)
 
-
-            
+        print(f"epoch: {dicts['epoch']} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}")
+        print(f"epoch: {dicts['epoch']} - valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
 
 
 
