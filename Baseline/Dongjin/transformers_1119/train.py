@@ -66,20 +66,20 @@ class Trainer:
                 dices.append(dice.detach().cpu())
                 tepoch.set_postfix(loss=loss_item)
 
+        # 손실 평균
         avg_loss = utils.average(losses)
+        
+        # dice 계산
         dices = torch.cat(dices, 0)
         dices_per_class = torch.mean(dices, 0)
-
-        dice_str = [
-        f"{c:<12}: {d.item():.4f}"
-        for c, d in zip(self.xray_classes['classes'], dices_per_class)
-        ]
-        dice_str = "\n".join(dice_str)
-        print(dice_str)
-
         avg_dice = torch.mean(dices_per_class).item()
 
-        return avg_loss, avg_dice, dices_per_class
+        results = {}
+        results['loss'] = avg_loss
+        results['dice'] = avg_dice
+        results['dices_per_class'] = dices_per_class
+
+        return results
 
 
 
@@ -87,13 +87,28 @@ class Trainer:
         for epoch in range(self.conf['max_epoch']):
             losses = []
             print(f'epoch: {epoch+1} - train')
-            train_loss, train_dice, train_dices_per_class = self.train_valid(mode='train', thr=0.5)
-            print(f'epoch: {epoch+1}, train loss: {train_loss:.4f}, train dice: {train_dice:.4f}')
+            train_log = self.train_valid(mode='train', thr=0.5)
 
             print(f'epoch: {epoch+1} - valid')
             with torch.no_grad():
-                valid_loss, valid_dice, valid_dices_per_class = self.train_valid(mode='valid', thr=0.5)
-            print(f'epoch: {epoch+1}, valid loss: {valid_loss:.4f}, valid dice: {valid_dice:.4f}')
+                valid_log = self.train_valid(mode='valid', thr=0.5)
+
+            self.log(epoch, train_log, valid_log)
+    
+    def log(self, epoch, train_log, valid_log):
+        dicts = {}
+        dicts['epoch'] = epoch+1
+
+        for k, v in train_log.items():
+            dicts['train_'+k] = v
+        for k, v in valid_log.items():
+            dicts['valid_'+k] = v
+
+        print(f'epoch: {dicts['epoch']} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}')
+
+
+            
+
 
 
     def load_train_transforms(self):
@@ -112,18 +127,16 @@ class Trainer:
                                     transforms=self.load_train_transforms(), 
                                     image_processor=self.image_processor,
                                     data_dir_path=self.conf['data_dir_path'],
-                                    data_info_path=self.conf['train_json_path'])
+                                    data_info_path=self.conf['train_json_path'],
+                                    debug=self.conf['debug'])
         
         self.valid_dataset = XRayDataset(mode='valid', 
                                     transforms=None, 
                                     image_processor=self.image_processor,
                                     data_dir_path=self.conf['data_dir_path'],
-                                    data_info_path=self.conf['valid_json_path'])
+                                    data_info_path=self.conf['valid_json_path'],
+                                    debug=self.conf['debug'])
         
-        if self.conf['debug'] == True:
-            self.train_dataset = self.train_dataset[0:self.conf['batch_size'] * 2]
-            self.valid_dataset = self.valid_dataset[0:self.conf['batch_size'] * 2]
-
         self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['batch_size'], shuffle=True, num_workers=self.conf['num_workers'])
         self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
     

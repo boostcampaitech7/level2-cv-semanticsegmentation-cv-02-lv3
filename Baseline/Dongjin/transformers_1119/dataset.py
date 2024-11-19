@@ -36,6 +36,7 @@ class XRayDataset(Dataset):
                  image_processor=None,
                  data_dir_path=None,
                  data_info_path=None,
+                 debug=False
                  ):
         
         self.mode = mode
@@ -43,8 +44,12 @@ class XRayDataset(Dataset):
         self.image_processor = image_processor
         self.data_dir_path = data_dir_path
         self.data_info_path = data_info_path
+        self.debug = debug
 
         self.image_paths, self.anns_paths = self.get_image_anns_paths() # image와 annotation 파일 경로 불러오기
+        if debug:
+            self.image_paths = self.image_paths[0:16]
+            self.anns_paths = self.anns_paths[0:16]
         
         dicts = get_xray_classes() # xray 이미지 클래스 정보 불러오기
         self.num_class = dicts['num_class']
