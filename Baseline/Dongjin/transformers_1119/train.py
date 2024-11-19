@@ -8,6 +8,7 @@ from tqdm import tqdm
 import utils
 import torch
 import os
+import wandb
 
 
 def dice_coef(y_true, y_pred):
@@ -23,12 +24,13 @@ class Trainer:
     def __init__(self, conf):
         self.conf = conf
         self.load_dataloader() # train_loader, valid_loader 준비
-        self.load_model() # model, optimzier, loss function 준비
+        self.load_model() # model, optimizer, loss function 준비
 
 
     def train(self):
+        best_valid_dice = 0
+
         for epoch in range(1, self.conf['max_epoch']+1):
-            losses = []
             # train 실행 
             train_log = self.train_valid(epoch, mode='train', thr=0.5)
             
@@ -36,9 +38,22 @@ class Trainer:
             with torch.no_grad():
                 valid_log = self.train_valid(epoch, mode='valid', thr=0.5)
 
+            
+            if best_valid_dice < valid_log['dice']:
+                best_valid_dice = valid_log['dice']
+                save_path = os.path.join(self.conf['model_dir_path'], f'ep_{epoch}_dice_{best_valid_dice:.4f}')
+                self.save_model(save_path)
+                                         
+                print(f'New best_valid_dice is achieved: {best_valid_dice:.4f} - {save_path}')                        
+
             # 로그 출력 및 기록
             self.log(epoch, train_log, valid_log) 
 
+
+    def save_model(self, save_dir_path):
+        os.makedirs(save_dir_path, exist_ok=True)
+        self.model.save_pretrained(save_dir_path)
+        self.image_processor.save_pretrained(save_dir_path)
 
     def train_valid(self, epoch, mode='train', thr=0.5):
         losses = []
@@ -92,13 +107,17 @@ class Trainer:
         dices_per_class = torch.mean(dices, 0)
         avg_dice = torch.mean(dices_per_class).item()
 
+        dicts = {c: v.item() for c, v in zip(self.xray_classes['classes'], dices_per_class)}
+
         results = {}
         results['loss'] = avg_loss
         results['dice'] = avg_dice
-        results['dices_per_class'] = dices_per_class
+        results['dices_per_class'] = dicts
 
         return results
      
+    
+
  
     def log(self, epoch, train_log, valid_log):
         log_path = os.path.join(self.conf['model_dir_path'], 'log.json')
@@ -115,10 +134,12 @@ class Trainer:
             dicts['valid_'+k] = v
 
         logs['epoch'][epoch] = dicts
+        print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}, valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
+        
+        wandb.log(dicts)
         utils.save_json(logs, log_path)
 
-        print(f"epoch: {dicts['epoch']} - train_loss: {dicts['train_loss']:4f}, train_dice: {dicts['train_loss']:4f}")
-        print(f"epoch: {dicts['epoch']} - valid_loss: {dicts['valid_loss']:4f}, valid_dice: {dicts['valid_dice']:4f}")
+        
 
 
 

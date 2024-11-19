@@ -1,6 +1,9 @@
 import utils, os
 from argparse import ArgumentParser
 from train import Trainer
+from dotenv import load_dotenv
+import subprocess
+import wandb
 
 def parse_args():
     parser = ArgumentParser()
@@ -34,6 +37,16 @@ if __name__ == '__main__':
     save_conf_path = os.path.join(conf['model_dir_path'], 'exp.json')
     os.makedirs(conf['model_dir_path'], exist_ok=True)
     utils.save_json(conf, save_conf_path)
+
+    # wandb 불러오기
+    # if conf['debug'] == False:
+    load_dotenv()
+    WANDB_API_KEY = os.environ.get("WANDB_API_KEY")
+    subprocess.call(f"wandb login {WANDB_API_KEY}", shell=True)
+    wandb.init()
+    wandb.run.name = conf['run_name']
+    wandb.config.update(conf)
+
 
     # 학습 시작
     trainer = Trainer(conf)

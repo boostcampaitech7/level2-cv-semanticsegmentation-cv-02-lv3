@@ -1,9 +1,9 @@
 {
-    "run_name": "default",
+    "run_name": "mit-b2",
     "num_workers": 8,
     "batch_size": 8,
     "learning_rate": 1e-4,
-    "max_epoch": 50,
+    "max_epoch": 100,
     "save_interval": 1,
     "model_name": "nvidia/mit-b2",
     "data_dir_path": "/data/ephemeral/home/data",
@@ -12,5 +12,5 @@
     "test_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/test_path/test.json",
     "pretrained_path": null,
     "device": "cuda",
-    "debug": true
+    "debug": false
 }
