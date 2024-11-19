@@ -22,10 +22,11 @@ class Trainer:
     def __init__(self, conf):
         self.conf = conf
         self.load_dataloader() # train_loader, valid_loader 준비
-        self.load_model_and_optimizer() # model과 optimizer 준비
+        self.load_model() # model, optimzier, loss function 준비
 
-    def train_valid(self, mode='train', ):
+    def train_valid(self, mode='train', thr=0.5):
         losses = []
+        dices = []
         
         if mode == 'train':
             self.model.train()
@@ -34,57 +35,68 @@ class Trainer:
         else:
             raise(Exception(f"{mode} is not valid"))
 
-
         with tqdm(self.train_loader, unit="batch") as tepoch:
             for batch in tepoch:
-                if mode == 'train':
-                self.optimizer.zero_grad()
+                if mode == 'train': # train이면 graident 초기화
+                    self.optimizer.zero_grad()
+
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
-                outputs = self.mode(inputs).logits
+                outputs = self.model(inputs).logits
 
                 output_h, output_w = outputs.size(-2), outputs.size(-1)
                 label_h, label_w = labels.size(-2), labels.size(-1)
 
+                # label과 output size가 다르면 upsampling
                 if output_h != label_h or output_w != label_w:
                     outputs = nn.functional.interpolate(outputs, size=(label_h, label_w), mode="bilinear")
 
                 loss = self.loss_func(outputs, labels)
                 loss_item = loss.item()
                 losses.append(loss_item)
+                
+                if mode == 'train': # train이면 gradient 계산 및 업데이트
+                    loss.backward()
+                    self.optimizer.step()
 
-                loss.backward()
-                self.optimizer.step()
-                tepoch.set_postfix(loss_item)
+                outputs = torch.sigmoid(outputs)
+                outputs = (outputs > thr)
+
+                dice = dice_coef(outputs, labels)
+                dices.append(dice.detach().cpu())
+                tepoch.set_postfix(loss=loss_item)
 
         avg_loss = utils.average(losses)
+        dices = torch.cat(dices, 0)
+        dices_per_class = torch.mean(dices, 0)
+
+        dice_str = [
+        f"{c:<12}: {d.item():.4f}"
+        for c, d in zip(self.xray_classes['classes'], dices_per_class)
+        ]
+        dice_str = "\n".join(dice_str)
+        print(dice_str)
+
+        avg_dice = torch.mean(dices_per_class).item()
+
+        return avg_loss, avg_dice, dices_per_class
+
+
 
     def train(self):
         for epoch in range(self.conf['max_epoch']):
             losses = []
-            
-            with tqdm(self.train_loader, unit="batch") as tepoch:
-                for batch in tepoch:
-                    self.optimizer.zero_grad()
-                    inputs = batch["pixel_values"].to(self.conf['device'])
-                    labels = batch["labels"].to(self.conf['device'])
-                    outputs = self.mode(inputs).logits
+            print(f'epoch: {epoch+1} - train')
+            train_loss, train_dice, train_dices_per_class = self.train_valid(mode='train', thr=0.5)
+            print(f'epoch: {epoch+1}, train loss: {train_loss:.4f}, train dice: {train_dice:.4f}')
 
-                    labels_size = labels.shape[-2:]
-                    outputs_resize = upsampling(outputs, labels_size)
-
-                    loss = self.loss_func(outputs_resize, labels)
-                    loss_item = loss.item()
-                    losses.append(loss_item)
-
-                    loss.backward()
-                    self.optimizer.step()
-                    tepoch.set_postfix(loss_item)
-
-            avg_loss = utils.average(losses)
+            print(f'epoch: {epoch+1} - valid')
+            with torch.no_grad():
+                valid_loss, valid_dice, valid_dices_per_class = self.train_valid(mode='valid', thr=0.5)
+            print(f'epoch: {epoch+1}, valid loss: {valid_loss:.4f}, valid dice: {valid_dice:.4f}')
 
 
-    def load_train_transforms():
+    def load_train_transforms(self):
         train_transforms = A.Compose(
             [
                 A.HorizontalFlip(p=0.5),
@@ -107,9 +119,13 @@ class Trainer:
                                     image_processor=self.image_processor,
                                     data_dir_path=self.conf['data_dir_path'],
                                     data_info_path=self.conf['valid_json_path'])
+        
+        if self.conf['debug'] == True:
+            self.train_dataset = self.train_dataset[0:self.conf['batch_size'] * 2]
+            self.valid_dataset = self.valid_dataset[0:self.conf['batch_size'] * 2]
 
-        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['batch_size'], shuffle=True)
-        self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['batch_size'], shuffle=False)
+        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['batch_size'], shuffle=True, num_workers=self.conf['num_workers'])
+        self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
     
 
     def load_model(self):
