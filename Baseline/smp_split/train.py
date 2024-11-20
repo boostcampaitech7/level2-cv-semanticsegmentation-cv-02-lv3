@@ -93,8 +93,8 @@ split_file = args.json_dir+f'/fold_{args.fold}.json'
 #tf = A.Resize(512, 512)
 resize_height, resize_width = args.resize
 tf = A.Resize(resize_height, resize_width)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf,split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf,split_file=split_file)
 
 # dataloader
 train_loader = DataLoader(
