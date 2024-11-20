@@ -149,6 +149,10 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
                 best_dice = dice
                 save_model(model, saved_dir,  f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_best_model.pt")
 
+        # 10 epoch마다 모델 저장
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch {epoch + 1}: Saving model checkpoint.")
+            save_model(model, saved_dir, f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_epoch{epoch + 1}.pt")
 
 # mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 합니다.
 
