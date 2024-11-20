@@ -89,54 +89,67 @@ class XRayDataset(Dataset):
         image_path = self.image_paths[item]
         image_name = os.path.basename(image_path)
         image = cv2.imread(image_path) 
+        label = None
+        result = None
 
         # annotation paths가 존재하면 
         # loss 계산 / evaluation에서 사용할 labels(mask) 생성
         if self.anns_paths is not None:
-            anns_path = self.anns_paths[item]
-            anns = utils.read_json(anns_path)['annotations']
-
-            # (H, W, NC) 모양의 label을 생성
-            label_shape = tuple(image.shape[:2]) + (self.num_class, )
-            label = np.zeros(label_shape, dtype=np.uint8)
-
-            # 클래스 별로 처리
-            for ann in anns:
-                class_name = ann["label"]
-                class_ind = self.class2idx[class_name]
-                points = np.array(ann["points"])
-
-                # polygon 포맷을 dense mask 포맷으로 변환
-                class_label = np.zeros(image.shape[:2], dtype=np.uint8)
-                cv2.fillPoly(class_label, [points], 1)
-                label[..., class_ind] = class_label
-
+            label = self.load_label(item, image.shape)
+            
         # transforms가 있으면 image와 label(mask) 변환
         if self.transforms is not None:
-            inputs = {"image": image, "mask": label}
-            result = self.transforms(**inputs)
+            result = self.transforms(image=image, mask=label)
             image = result['image']
             label = result['mask']
+            result['labels'] = label
+            del result['mask']
+            
 
-        # HxWxC -> CxHxW
-        if (self.mode == 'train') or (self.mode == 'valid'):
-            image = image.transpose(2, 0, 1)
+        # image와 label 채널 순서 변경 (HxWxC -> CxHxW)
+        image = image.transpose(2, 0, 1)
+        if label is not None:
             label = label.transpose(2, 0, 1)
-            result = self.image_processor(image, label) 
-            result['labels'] = np.stack(result['labels'])
-            result['labels'] = torch.from_numpy(result['labels']).float()
 
-        elif self.mode == 'test':
-            image = image.transpose(2, 0, 1)
-            result = self.image_processor(image)
+        if self.image_processor is not None: # image_processor가 정의되었으면
+            if label is not None: # label이 정의되었으면
+                result = self.image_processor(image, label) 
+                result['labels'] = np.stack(result['labels'])
+                result['labels'] = torch.from_numpy(result['labels']).float()
+            else: # label이 정의되지 않았으면
+                result = self.image_processor(image)
 
-        # 결과 반환 준비
-        result['pixel_values'] = result['pixel_values'][0]
-        result['image'] = np.array(image)
-        result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
+            # pixel_value torch로 저장
+            result['pixel_values'] = result['pixel_values'][0]
+            result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
         
+        if result is None:
+            result = {'image': image, 'labels': label}
+            
         return result, image_name
     
+
+    def load_label(self, item, image_shape):
+        anns_path = self.anns_paths[item]
+        anns = utils.read_json(anns_path)['annotations']
+
+        # (H, W, NC) 모양의 label을 생성
+        label_shape = tuple(image_shape[:2]) + (self.num_class, )
+        label = np.zeros(label_shape, dtype=np.uint8)
+
+        # 클래스 별로 처리
+        for ann in anns:
+            class_name = ann["label"]
+            class_ind = self.class2idx[class_name]
+            points = np.array(ann["points"])
+
+            # polygon 포맷을 dense mask 포맷으로 변환
+            class_label = np.zeros(image_shape[:2], dtype=np.uint8)
+            cv2.fillPoly(class_label, [points], 1)
+            label[..., class_ind] = class_label
+
+        return label
+
 
     def __len__(self):
         return len(self.image_paths)
