@@ -1,4 +1,0 @@
-{
-    "model_name": "nvidia/mit-b5",
-    "step_batch_size": 1
-}

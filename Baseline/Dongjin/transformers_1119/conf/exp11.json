@@ -1,4 +1,0 @@
-{
-    "model_name": "openmmlab/upernet-convnext-xlarge",
-    "step_batch_size": 1
-}

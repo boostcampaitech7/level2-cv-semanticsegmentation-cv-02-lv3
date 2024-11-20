@@ -1,3 +1,8 @@
 {
-    "model_name": "facebook/mask2former-swin-large-cityscapes-semantic"
+    "run_name_format": "upernet-swin-large_cont_size_{image_size[0]}",
+    "model_name": null,
+    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/openmmlab/upernet-swin-large/ep_30_vdice_0.9481",
+    "image_size": [1024, 1024],
+    "step_batch_size": 2,
+    "max_epoch": 10
 }

@@ -6,11 +6,12 @@
     "learning_rate": 1e-4,
     "max_epoch": 30,
     "model_name": "nvidia/mit-b2",
+    "image_size": null,
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "test_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/test_path/test.json",
-    "pretrained_path": null,
+    "trained_path": null,
     "device": "cuda",
     "debug": false
 }
