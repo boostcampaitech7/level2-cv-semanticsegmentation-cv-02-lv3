@@ -1,5 +1,5 @@
 {
-    "run_name_format": "cont/upernet-convnext-small_cont_size_{image_size[0]}",
+    "run_name_format": "cont/mit-b2_cont_size_{image_size[0]}",
     "num_workers": 8,
     "batch_size": 8,
     "step_batch_size": 2,
@@ -14,10 +14,10 @@
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "test_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/test_path/test.json",
-    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/openmmlab/upernet-convnext-small/ep_30_vdice_0.9558",
+    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/nvidia/mit-b2/ep_30_vdice_0.9463",
     "device": "cuda",
     "debug": false,
     "work_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119",
-    "run_name": "upernet-convnext-small_cont_size_1024",
-    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/cont/upernet-convnext-small_cont_size_1024"
+    "run_name": "mit-b2_cont_size_1024",
+    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/cont/mit-b2_cont_size_1024"
 }
