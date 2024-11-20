@@ -87,6 +87,7 @@ class XRayDataset(Dataset):
     def __getitem__(self, item):
         # 이미지 읽어오기
         image_path = self.image_paths[item]
+        image_name = os.path.basename(image_path)
         image = cv2.imread(image_path) 
 
         # annotation paths가 존재하면 
@@ -134,7 +135,7 @@ class XRayDataset(Dataset):
         result['image'] = np.array(image)
         result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
         
-        return result
+        return result, image_name
     
 
     def __len__(self):
