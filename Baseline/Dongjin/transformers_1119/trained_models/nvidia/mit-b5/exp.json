@@ -1,0 +1,19 @@
+{
+    "run_name_format": "{model_name}",
+    "num_workers": 8,
+    "batch_size": 8,
+    "step_batch_size": 1,
+    "learning_rate": 0.0001,
+    "max_epoch": 30,
+    "model_name": "nvidia/mit-b5",
+    "data_dir_path": "/data/ephemeral/home/data",
+    "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
+    "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
+    "test_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/test_path/test.json",
+    "pretrained_path": null,
+    "device": "cuda",
+    "debug": false,
+    "work_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119",
+    "run_name": "mit-b5",
+    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/nvidia/mit-b5"
+}
