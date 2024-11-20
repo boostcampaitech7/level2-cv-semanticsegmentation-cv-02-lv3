@@ -4,9 +4,7 @@ import json
 import random
 import datetime
 from functools import partial
-import segmentation_models_pytorch as smp
 from dotenv import load_dotenv
-# pip install git+https://github.com/qubvel/segmentation_models.pytorch
 
 # external library
 import cv2
@@ -26,11 +24,16 @@ from torchvision import models
 
 # visualization
 import matplotlib.pyplot as plt
+
 import argparse
+
 from dataset import XRayDataset
+
 from trainer import *
 import wandb
-
+from hrnet import get_seg_model
+#from config import cfg
+from config3 import cfg
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train segmentation model")
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs')
@@ -38,30 +41,27 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--valid_batch_size', type=int, default=2, help='valid Batch size')
     parser.add_argument('--val_every', type=int, default=10, help='val_every')
-    parser.add_argument('--image_root', type=str,default='/data/ephemeral/home/data/train/DCM',help='image root')
-    parser.add_argument('--label_root',type=str,default='/data/ephemeral/home/data/train/outputs_json',help='label root')
+    parser.add_argument('--image_root', type=str,default='../../data/train/DCM',help='image root')
+    parser.add_argument('--label_root',type=str,default='../../data/train/outputs_json',help='label root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
-    parser.add_argument('--model_name', type=str, default='resnet101', help='Name of the segmentation model')
-    parser.add_argument('--encoder_weights', type=str, default='imagenet', help='encoder weights')
-    parser.add_argument('--seg_model', type=str, default='UnetPlusPlus', help='Segmentation model name')
-    parser.add_argument('--resize', type=int, nargs=2, default=[512, 512], help='Resize dimensions: height width')
-    parser.add_argument('--json_dir', type=str, default='../Data/train_valid_split/splits', help='train_valid_split_dir')
-    parser.add_argument('--fold', type=int,default=0,help='split_k_fold_0')
+    parser.add_argument('--model_name', type=str, default='hrnetv2', help='Name of the segmentation model')
+    parser.add_argument('--image_resize',type=int,default=512,help='image resize')
+    
     args = parser.parse_args()
 
     load_dotenv()
     wandb_api_key = os.getenv('WANDB_API_KEY')
     wandb.login(key=wandb_api_key)
-
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}",config={
+    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
         "valid_batch_size": args.valid_batch_size,
         "model_name": args.model_name
     })
-    
+
+
 if not os.path.exists(args.saved_dir):                                                           
     os.makedirs(args.saved_dir)
 
@@ -85,16 +85,10 @@ def set_seed():
     np.random.seed(RANDOM_SEED)
     random.seed(RANDOM_SEED)
 
-# json 파일 경로 지정
-split_file = args.json_dir+f'/fold_{args.fold}.json'
-
-
 # dataset
-#tf = A.Resize(512, 512)
-resize_height, resize_width = args.resize
-tf = A.Resize(resize_height, resize_width)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf,split_file=split_file)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf,split_file=split_file)
+tf = A.Resize(args.image_resize, args.image_resize)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf)
 
 # dataloader
 train_loader = DataLoader(
@@ -115,18 +109,14 @@ valid_loader = DataLoader(
 )
 
 
-# model
-seg_model_name = getattr(smp, args.seg_model, None)
+# # model
+# model_func = getattr(models.segmentation, args.model_name)
+# model = model_func(pretrained=True)
 
-if seg_model_name:
-    model = seg_model_name(
-        encoder_name=args.model_name,         # Encoder 이름 (e.g., resnet101, efficientnet-b0)
-        encoder_weights=args.encoder_weights, # Pretrained weights (e.g., imagenet)
-        in_channels=3,                        # 입력 채널 (e.g., RGB)
-        classes=len(CLASSES)                  # 출력 클래스 수
-    )
-else:
-    raise ValueError(f"Segmentation model '{args.seg_model}' is not available in smp.")
+# # output class 개수를 dataset에 맞도록 수정합니다.
+# model.classifier[4] = nn.Conv2d(512, len(CLASSES), kernel_size=1)
+model=get_seg_model(cfg)
+
 
 # Loss function을 정의합니다.
 criterion = nn.BCEWithLogitsLoss()
@@ -137,9 +127,6 @@ optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 # 시드를 설정합니다.
 set_seed()
 
-train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model, args.resize, args.batch_size)
+train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
 
 wandb.finish()
-
-
-# python train.py
