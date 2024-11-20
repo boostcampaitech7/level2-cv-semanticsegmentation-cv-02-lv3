@@ -89,3 +89,13 @@ def load_wandb(conf):
     wandb.init()
     wandb.run.name = conf['run_name']
     wandb.config.update(conf)
+
+
+def best_model_dir_path(model_dir_path):
+    paths = get_dirs_in_path(model_dir_path)
+    if 1 < len(paths):
+        raise(Exception("Multiple saved models!"))
+         
+    path = paths[0]
+    
+    return path
