@@ -118,19 +118,22 @@ class XRayDataset(Dataset):
             label = result['mask']
 
         # HxWxC -> CxHxW
-        image = image.transpose(2, 0, 1)
-        label = label.transpose(2, 0, 1)
-        
-        result = self.image_processor(image, label) # 모델 입력에 맞는 image input으로 변경
-        
-        # 결과 반환 
+        if (self.mode == 'train') or (self.mode == 'valid'):
+            image = image.transpose(2, 0, 1)
+            label = label.transpose(2, 0, 1)
+            result = self.image_processor(image, label) 
+            result['labels'] = np.stack(result['labels'])
+            result['labels'] = torch.from_numpy(result['labels']).float()
+
+        elif self.mode == 'test':
+            image = image.transpose(2, 0, 1)
+            result = self.image_processor(image)
+
+        # 결과 반환 준비
         result['pixel_values'] = result['pixel_values'][0]
-        result['labels'] =  np.stack(result['labels'])
         result['image'] = np.array(image)
-
         result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
-        result['labels'] = torch.from_numpy(result['labels']).float()
-
+        
         return result
     
 

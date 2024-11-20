@@ -170,9 +170,25 @@ class Trainer:
             ])
         return train_transforms
 
+    def load_image_processor(self):
+        if self.conf['image_size'] is None:
+            if self.conf['trained_path'] is None:
+                self.image_processor = AutoImageProcessor.from_pretrained(self.conf['model_name'], reduce_labels=True)
+            else:
+                self.image_processor = AutoImageProcessor.from_pretrained(self.conf['trained_path'])
+
+        else:
+            w, h = self.conf['image_size']
+
+            if self.conf['trained_path'] is None:
+                self.image_processor = AutoImageProcessor.from_pretrained(self.conf['model_name'], reduce_labels=True, size={"height": h, "width": w})
+            else:
+                self.image_processor = AutoImageProcessor.from_pretrained(self.conf['trained_path'], size={"height": h, "width": w})
+
 
     def load_dataloader(self):
-        self.image_processor = AutoImageProcessor.from_pretrained(self.conf['model_name'], reduce_labels=True)
+        self.load_image_processor()
+
         self.train_dataset = XRayDataset(mode='train', 
                                     transforms=self.load_train_transforms(), 
                                     image_processor=self.image_processor,
@@ -193,12 +209,20 @@ class Trainer:
 
     def load_model(self):
         self.xray_classes = get_xray_classes()
-        self.model = AutoModelForSemanticSegmentation.from_pretrained(
-                    self.conf['model_name'],
-                    ignore_mismatched_sizes=True,
-                    num_labels=self.xray_classes['num_class'],
-                    id2label=self.xray_classes['idx2class'],
-                    label2id=self.xray_classes['class2idx']).to(self.conf['device'],)
+        
+        if self.conf['trained_path'] is None:
+            self.model = AutoModelForSemanticSegmentation.from_pretrained(
+                        self.conf['model_name'],
+                        ignore_mismatched_sizes=True,
+                        num_labels=self.xray_classes['num_class'],
+                        id2label=self.xray_classes['idx2class'],
+                        label2id=self.xray_classes['class2idx']
+                        )
+        else:
+            self.model = AutoModelForSemanticSegmentation.from_pretrained(
+                self.conf['trained_path']
+                )
 
+        self.model = self.model.to(self.conf['device'])
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.conf['learning_rate'])
         self.loss_func = nn.BCEWithLogitsLoss()
