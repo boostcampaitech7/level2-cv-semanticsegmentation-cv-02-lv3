@@ -36,7 +36,8 @@ if __name__ == '__main__':
     os.makedirs(conf['model_dir_path'], exist_ok=True)
     utils.save_json(conf, save_conf_path)
     
-    utils.load_wandb(conf) # wandb 설정
+    if conf['debug'] == False:
+        utils.load_wandb(conf) # wandb 설정
 
     # 학습 시작
     utils.set_seed() # seed 고정

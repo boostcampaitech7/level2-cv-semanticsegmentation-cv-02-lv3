@@ -1,8 +1,3 @@
 {
-    "run_name_format": "cont/upernet-convnext-small_cont_size_{image_size[0]}",
-    "model_name": null,
-    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/openmmlab/upernet-convnext-small/ep_30_vdice_0.9558",
-    "image_size": [1024, 1024],
-    "step_batch_size": 2,
-    "max_epoch": 20
+    "run_name_format": "{model_name}_1120"
 }

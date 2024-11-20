@@ -1,8 +1,6 @@
 {
-    "run_name_format": "cont/upernet-swin-large_cont_size_{image_size[0]}",
-    "model_name": null,
-    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/openmmlab/upernet-swin-large/ep_30_vdice_0.9481",
+    "run_name_format": "{model_name}_weight_size_{image_size[0]}",
     "image_size": [1024, 1024],
-    "step_batch_size": 2,
-    "max_epoch": 20
+    "class_weights": [8.87,4.25,2.59,13.45,6.86,3.18,1.93,11.45,5.39,2.85,2.14,11.58,6.16,3.37,2.84,16.94,
+    10.93,4.79,2.81,7.64,12.60,4.52,6.07,6.50,8.76,9.23,16.02,1.00,1.92]
 }

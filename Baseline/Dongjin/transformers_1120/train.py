@@ -86,7 +86,7 @@ class Trainer:
             raise(Exception(f"{mode} is not valid"))
 
         with tqdm(loader, unit="batch") as tepoch:
-            for i, batch in enumerate(tepoch):
+            for i, (batch, _) in enumerate(tepoch):
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
                 outputs = self.model(inputs).logits
@@ -157,7 +157,8 @@ class Trainer:
         logs['epoch'][epoch] = dicts
         print(f"epoch: {epoch} - train_loss: {dicts['train_loss']:.4f}, train_dice: {dicts['train_dice']:.4f}, valid_loss: {dicts['valid_loss']:.4f}, valid_dice: {dicts['valid_dice']:.4f}")
         
-        wandb.log(dicts)
+        if self.conf['debug'] == False:
+            wandb.log(dicts)
         utils.save_json(logs, log_path)
 
 
@@ -225,4 +226,10 @@ class Trainer:
 
         self.model = self.model.to(self.conf['device'])
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.conf['learning_rate'])
-        self.loss_func = nn.BCEWithLogitsLoss()
+
+        if self.conf['class_weights'] is None:
+            self.loss_func = nn.BCEWithLogitsLoss()
+        else:
+            weights = torch.tensor(self.conf['class_weights']).to(self.conf['device'])
+            weights = weights.reshape(-1, 1, 1)
+            self.loss_func = nn.BCEWithLogitsLoss(weight=weights)
