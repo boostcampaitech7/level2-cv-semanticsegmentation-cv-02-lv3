@@ -1,12 +1,8 @@
-import torch
 import json
-import csv
 import os
 import numpy as np
 import pandas as pd
-import torch.nn.functional as F
 from ultralytics import YOLO
-from pathlib import Path
 from tqdm import tqdm
 
 def encode_mask_to_rle(mask_data):
@@ -34,7 +30,6 @@ def get_sorted_file_paths(data_path):
     return images
 
 def df_to_csv(dataframe, output_file):
-    
     dataframe = (
         dataframe.sort_values(by=["image_name", "class_num"])  # 정렬
         .drop(columns=["class_num"])                           # 불필요한 열 제거
@@ -52,7 +47,6 @@ def inference(pretrained_weight, data_path):
     outputs = model.predict(test_images)  # 예측 수행
 
     for file_name, output in tqdm(zip(test_images, outputs), total=len(test_images), desc="Processing Images"):
-        rles = []
         df_result = output.to_df()  # DataFrame으로 변환
 
         class_names = df_result['name'].tolist()
@@ -74,6 +68,5 @@ def inference(pretrained_weight, data_path):
 if __name__ == "__main__":
     pretrained_weight = "your pretrained weight path"
     test_data = "yout test data path" 
-    
     df = inference(pretrained_weight, test_data)
     df_to_csv(df, "submission.csv")
