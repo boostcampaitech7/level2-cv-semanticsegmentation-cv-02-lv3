@@ -111,7 +111,7 @@ class Inference:
         return rles, filename_and_class
     
     def inference_and_save(self, mode, save_path=None, thr=0.5):
-        rles, filename_and_class = self.inference(self, mode, thr)
+        rles, filename_and_class = self.inference(mode, thr)
         classes, filename = zip(*[x.split("_") for x in filename_and_class])
         image_name = [os.path.basename(f) for f in filename]
 
@@ -126,5 +126,5 @@ class Inference:
             suffix = os.path.basename(self.model_dir_path)
             save_name = f'{prefix}_{suffix}.csv'
             save_path = os.path.join(self.model_dir_path, save_name)
-            
+
         df.to_csv(save_path, index=False)
