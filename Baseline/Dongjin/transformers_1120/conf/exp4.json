@@ -1,4 +1,0 @@
-{
-    "run_name_format": "{model_name}_size_{image_size[0]}",
-    "image_size": [1024, 1024]
-}
