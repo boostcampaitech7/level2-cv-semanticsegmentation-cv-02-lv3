@@ -121,8 +121,6 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
             images, masks = images.cuda(), masks.cuda()
             model = model.cuda()
             outputs = model(images)
-            temp = outputs.detach().clone()  # 계산 그래프에서 분리된 텐서를 복사
-            
 
             # loss를 계산합니다.
             loss = criterion(outputs, masks)
@@ -143,27 +141,31 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
 
         total_loss /= len(data_loader)
 
-        # # wandb에 현재 loss 로깅
-        # wandb.log({"Train Loss": round(loss.item(), 4)})
-             
-
         avg_dice, dice_dict = validation(epoch + 1, model, val_loader, criterion)
 
-            # wandb에 검증 결과 로깅
-            #wandb.log({"Validation Dice": dice, "epoch": epoch + 1})
-            
-            if best_dice < avg_dice:
-                print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {avg_dice:.4f}")
-                print(f"Save model in {saved_dir}")
-                best_dice = avg_dice
-                save_model(model, saved_dir, f"{model_name}_best_model.pt")
+    
+        # dice 갱신시 저장 및 print
+        if best_dice < avg_dice:
+            print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {avg_dice:.4f}")
+            print(f"Save model in {saved_dir}")
+            best_dice = avg_dice
+            save_model(model, saved_dir, f"{model_name}_best_model.pt")
+        else:
+            print(f"Performance at epoch: {epoch + 1}, {avg_dice:.4f}")
+        
+
+        #10 에포크마다 모델 저장
+        if (epoch+1) % 10 == 1:
             save_model(model, saved_dir, f"epoch_{epoch+1}.pt")
 
+        
+        # log 지정및 업데이트
         log = {
             "Train Loss": round(total_loss.item(), 4),
             "Validation Dice": avg_dice
         }
         log.update(dice_dict)
+
 
         wandb.log(log)
         
