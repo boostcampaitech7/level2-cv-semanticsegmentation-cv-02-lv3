@@ -5,6 +5,7 @@ import random
 import datetime
 from functools import partial
 
+
 # external library
 import cv2
 import numpy as np
@@ -21,6 +22,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import models
 import wandb
+import copy
 
 CLASSES = [
     'finger-1', 'finger-2', 'finger-3', 'finger-4', 'finger-5',
@@ -42,7 +44,7 @@ def dice_coef(y_true, y_pred):
     eps = 0.0001
     return (2. * intersection + eps) / (torch.sum(y_true_f, -1) + torch.sum(y_pred_f, -1) + eps)
 
-def save_model(model, saved_dir, file_name='fcn_resnet50_best_model.pt'):
+def save_model(model, saved_dir, file_name):
     output_path = os.path.join(saved_dir, file_name)
     torch.save(model, output_path)
 
@@ -59,10 +61,11 @@ def validation(epoch, model, data_loader, criterion, thr=0.5):
         cnt = 0
 
         for step, (images, masks) in tqdm(enumerate(data_loader), total=len(data_loader)):
-            images, masks = images.cuda(), masks.cuda()         
+            images, masks = images.cuda(), masks.cuda()        
+
             model = model.cuda()
             
-            outputs = model(images)#['out']
+            outputs = model(images)
             
             output_h, output_w = outputs.size(-2), outputs.size(-1)
             mask_h, mask_w = masks.size(-2), masks.size(-1)
@@ -71,7 +74,7 @@ def validation(epoch, model, data_loader, criterion, thr=0.5):
             if output_h != mask_h or output_w != mask_w:
                 outputs = F.interpolate(outputs, size=(mask_h, mask_w), mode="bilinear")
             
-            loss = criterion(outputs, masks)
+            loss = criterion(masks, outputs)
             total_loss += loss
             cnt += 1
             
@@ -98,12 +101,11 @@ def validation(epoch, model, data_loader, criterion, thr=0.5):
         f"{c} Dice": dices_per_class[i].item()
         for i, c in enumerate(CLASSES)
     }
-    wandb.log(dice_dict)
 
-    return avg_dice
+    return avg_dice, dice_dict
 
 
-def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_every, saved_dir, model_name, seg_model, resize, batch_size, fold):
+def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_every, saved_dir, model_name):
     print(f'Start training..')
     
     n_class = len(CLASSES)
@@ -112,18 +114,21 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
     for epoch in range(num_epochs):
         model.train()
 
+        total_loss = 0
+
         for step, (images, masks) in enumerate(data_loader):            
             # gpu 연산을 위해 device 할당합니다.
             images, masks = images.cuda(), masks.cuda()
             model = model.cuda()
-            
-            outputs = model(images)#['out']
-            
+            outputs = model(images)
+
             # loss를 계산합니다.
             loss = criterion(outputs, masks)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            total_loss += loss
             
             # step 주기에 따라 loss를 출력합니다.
             if (step + 1) % 25 == 0:
@@ -133,26 +138,39 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
                     f'Step [{step+1}/{len(data_loader)}], '
                     f'Loss: {round(loss.item(),4)}'
                 )
-                # wandb에 현재 loss 로깅
-                wandb.log({"Train Loss": round(loss.item(), 4)})
-             
-        # validation 주기에 따라 loss를 출력하고 best model을 저장합니다.
-        if (epoch + 1) % val_every == 0:
-            dice = validation(epoch + 1, model, val_loader, criterion)
 
-            # wandb에 검증 결과 로깅
-            wandb.log({"Validation Dice": dice, "Epoch": epoch + 1})
-            
-            if best_dice < dice:
-                print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
-                print(f"Save model in {saved_dir}")
-                best_dice = dice
-                save_model(model, saved_dir,  f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_best_model.pt")
+        total_loss /= len(data_loader)
 
-        # 10 epoch마다 모델 저장
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch {epoch + 1}: Saving model checkpoint.")
-            save_model(model, saved_dir, f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_epoch{epoch + 1}.pt")
+        avg_dice, dice_dict = validation(epoch + 1, model, val_loader, criterion)
+
+    
+        # dice 갱신시 저장 및 print
+        if best_dice < avg_dice:
+            print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {avg_dice:.4f}")
+            print(f"Save model in {saved_dir}")
+            best_dice = avg_dice
+            save_model(model, saved_dir, f"{model_name}_best_model.pt")
+        else:
+            print(f"Performance at epoch: {epoch + 1}, {avg_dice:.4f}")
+        
+
+        #10 에포크마다 모델 저장
+        if (epoch+1) % 10 == 1:
+            save_model(model, saved_dir, f"epoch_{epoch+1}.pt")
+
+        
+        # log 지정및 업데이트
+        log = {
+            "Train Loss": round(total_loss.item(), 4),
+            "Validation Dice": avg_dice
+        }
+        log.update(dice_dict)
+
+
+        wandb.log(log)
+        
+
+
 
 # mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 합니다.
 
@@ -181,7 +199,7 @@ def test(model, data_loader, thr=0.5):
 
         for step, (images, image_names) in tqdm(enumerate(data_loader), total=len(data_loader)):
             images = images.cuda()    
-            outputs = model(images)#['out']
+            outputs = model(images)
             
             outputs = F.interpolate(outputs, size=(2048, 2048), mode="bilinear")
             outputs = torch.sigmoid(outputs)
