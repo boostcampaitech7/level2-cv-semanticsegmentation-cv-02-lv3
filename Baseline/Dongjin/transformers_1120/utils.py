@@ -91,7 +91,7 @@ def load_wandb(conf):
     wandb.config.update(conf)
 
 
-def saved_model_dir_path(model_dir_path):
+def get_saved_model_dir_path(model_dir_path):
     paths = get_dirs_in_path(model_dir_path)
     if 1 < len(paths):
         raise(Exception("Multiple saved models!"))
