@@ -1,12 +1,13 @@
-from ultralytics import YOLO
 import torch
 import json
 import csv
+import os
 import numpy as np
 import pandas as pd
 import torch.nn.functional as F
-from ultralytics.engine.results import Masks
-import os
+from ultralytics import YOLO
+from pathlib import Path
+from tqdm import tqdm
 
 def encode_mask_to_rle(mask_data):
     '''
@@ -21,54 +22,58 @@ def encode_mask_to_rle(mask_data):
     runs[1::2] -= runs[::2]
     return ' '.join(str(x) for x in runs)
 
+def get_sorted_file_paths(data_path):
+    images = []
 
-# Load a model
-model = YOLO("/data/ephemeral/home/Jungyeon/Yolo/runs/segment/train2/weights/best.pt")  # load a custom model
+    for root, dirs, files in os.walk(data_path):
+        dirs.sort()
+        files.sort()
 
-test_data = "/data/ephemeral/home/data/test/DCM"
-  
-rles = []
-class_name = []
-class_num = []
-image_name = []
-for root, dirs, files in os.walk(test_data):
-    dirs.sort()
-    files.sort()
-    for file_name in files:
-        print(len(class_name))
-        print(len(class_num))
-        file_path = os.path.join(root, file_name)
-        # Predict with the model
-        results = model.predict(file_path)  # predict on an image
-        
-        for result in results:
-            df_result = result.to_df()
+        images.extend(os.path.join(root, file_name) for file_name in files)
 
-        class_name += df_result['name'].tolist()
-        class_num += df_result['class'].tolist()
-        image_name += [file_name]*len(df_result['name'])
-        masks = results[0].masks.data.cpu()
+    return images
 
-        for mask in masks:
+def df_to_csv(dataframe, output_file):
+    
+    dataframe = (
+        dataframe.sort_values(by=["image_name", "class_num"])  # 정렬
+        .drop(columns=["class_num"])                           # 불필요한 열 제거
+        .drop_duplicates(subset=["image_name", "class"])       # 중복 제거
+    )
+    
+    # CSV 파일로 저장
+    dataframe.to_csv(output_file, index=False)
+
+def inference(pretrained_weight, data_path):
+    results = []
+
+    model = YOLO(pretrained_weight)
+    test_images = get_sorted_file_paths(data_path)
+    outputs = model.predict(test_images)  # 예측 수행
+
+    for file_name, output in tqdm(zip(test_images, outputs), total=len(test_images), desc="Processing Images"):
+        rles = []
+        df_result = output.to_df()  # DataFrame으로 변환
+
+        class_names = df_result['name'].tolist()
+        class_index = df_result['class'].tolist()
+        masks = output.masks.data.cpu()
+
+        for i, mask in enumerate(masks):
             rle = encode_mask_to_rle(mask)
-            rles.append(rle)
-   
-  
-df = pd.DataFrame({
-    "image_name": image_name,
-    "class": class_name,
-    "class_num" : class_num,
-    "rle": rles,
-})
-
-# 클래스 기준 오름차순
-df = (
-    df.groupby("image_name", group_keys=False)  # groupby 설정
-    .apply(lambda x: x.sort_values("class_num"))  # 그룹별 정렬
-)
-# 'class_num' 열 삭제
-df = df.drop(columns=["class_num"])
-# 중복된 클래스 에측값 중 첫번째 값 제외 제거
-df = df.drop_duplicates(subset=['image_name', 'class'], keep='first')
-# csv 파일로 저장
-df.to_csv(f"df_final_sorted_class_num.csv", index=False)
+            results.append({
+                "image_name": file_name,
+                "class": class_names[i],
+                "class_num": class_indices[i],
+                "rle": rle
+            })
+            
+    df = pd.DataFrame(results)
+    return df
+    
+if __name__ == "__main__":
+    pretrained_weight = "your pretrained weight path"
+    test_data = "yout test data path" 
+    
+    df = inference(pretrained_weight, test_data)
+    df_to_csv(df, "submission.csv")

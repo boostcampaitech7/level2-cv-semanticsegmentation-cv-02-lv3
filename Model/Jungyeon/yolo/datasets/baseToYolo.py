@@ -47,9 +47,7 @@ def normalize_coordinates(data, image_width, image_height):
 def baseToYolo(base_dir, yolo_dir): # YOLO annotation 포맷 : <class-index> <x1> <y1> <x2> <y2> ... <xn> <yn>
     
     for json_path in os.listdir(base_dir):
-        
         annotation_path = os.path.join(base_dir, json_path)
-        
         with open(annotation_path, 'r') as f:
             annotations = json.load(f)
 
