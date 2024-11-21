@@ -96,6 +96,9 @@ class Inference:
         with torch.no_grad():
             for batch, image_names in tqdm(data_loader, total=len(data_loader)):
                 inputs = batch["pixel_values"].to('cuda')
+                if len(inputs.shape) == 3:
+                    inputs = inputs.unsqueeze(0)
+                
                 outputs = self.model(inputs).logits
                 
                 outputs = F.interpolate(outputs, size=(2048, 2048), mode="bilinear")
@@ -124,7 +127,14 @@ class Inference:
         if save_path is None:
             prefix = os.path.basename(self.saved_model_dir_path)
             suffix = os.path.basename(self.model_dir_path)
-            save_name = f'{prefix}_{suffix}.csv'
+            save_name = f'{mode}_{prefix}_{suffix}.csv'
             save_path = os.path.join(self.model_dir_path, save_name)
 
         df.to_csv(save_path, index=False)
+
+
+if __name__ == "__main__":
+    model_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1120/trained_models/cont/upernet-convnext-small_cont_size_1024_cont_weight'
+    inference = Inference(model_dir_path)
+    inference.inference_and_save(mode='train')
+    inference.inference_and_save(mode='valid')
