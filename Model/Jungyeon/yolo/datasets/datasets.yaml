@@ -4,7 +4,7 @@ train: images/train # train images (relative to path)
 val: images/valid # val images (relative to path)
 test: # test images (optional)
 
-# Classes (80 COCO classes)
+# Classes (29 클래스)
 names:
     0: finger-1
     1: finger-2
