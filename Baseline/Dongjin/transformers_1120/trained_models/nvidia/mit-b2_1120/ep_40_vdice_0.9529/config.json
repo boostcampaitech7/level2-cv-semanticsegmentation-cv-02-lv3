@@ -1,5 +1,5 @@
 {
-  "_name_or_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1119/trained_models/nvidia/mit-b2/ep_30_vdice_0.9463",
+  "_name_or_path": "nvidia/mit-b2",
   "architectures": [
     "SegformerForSemanticSegmentation"
   ],
