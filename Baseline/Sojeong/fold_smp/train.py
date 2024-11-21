@@ -38,8 +38,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--valid_batch_size', type=int, default=2, help='valid Batch size')
     parser.add_argument('--val_every', type=int, default=10, help='val_every')
-    parser.add_argument('--image_root', type=str,default='/data/ephemeral/home/data/train/DCM',help='image root')
-    parser.add_argument('--label_root',type=str,default='/data/ephemeral/home/data/train/outputs_json',help='label root')
+    parser.add_argument('--image_root', type=str,default='../train/DCM',help='image root')
+    parser.add_argument('--label_root',type=str,default='../train/outputs_json',help='label root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='resnet101', help='Name of the segmentation model')
     parser.add_argument('--encoder_weights', type=str, default='imagenet', help='encoder weights')
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}",config={
+    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}_fold{args.fold}",config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
@@ -93,8 +93,8 @@ split_file = args.json_dir+f'/fold_{args.fold}.json'
 #tf = A.Resize(512, 512)
 resize_height, resize_width = args.resize
 tf = A.Resize(resize_height, resize_width)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf,split_file=split_file)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf,split_file=split_file)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf, split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf, split_file=split_file)
 
 # dataloader
 train_loader = DataLoader(
@@ -137,7 +137,7 @@ optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 # 시드를 설정합니다.
 set_seed()
 
-train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model, args.resize, args.batch_size)
+train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model, args.resize, args.batch_size, args.fold)
 
 wandb.finish()
 
