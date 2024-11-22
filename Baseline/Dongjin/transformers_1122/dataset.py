@@ -20,11 +20,18 @@ def get_xray_classes():
     idx2class = {v: k for k, v in class2idx.items()}
     num_class = len(classes)
 
+    finger_idx = [0, 1, 2, 3]
+
     dicts = {}
     dicts['classes'] = classes
     dicts['class2idx'] = class2idx
     dicts['idx2class'] = idx2class
     dicts['num_class'] = num_class
+
+    dicts['finger_idx'] = list(range(0, 19))
+    dicts['backhand_idx'] = list(range(19, 27))
+    dicts['arm_idx'] = list(range(27, 29))
+    dicts['fingerbackhand_idx'] = list(range(0, 27))
 
     return dicts
 

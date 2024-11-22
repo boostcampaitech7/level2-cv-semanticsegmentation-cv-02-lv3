@@ -74,7 +74,7 @@ class Inference:
                                         data_dir_path=self.conf['data_dir_path'],
                                         data_info_path=self.conf['test_json_path'])
 
-        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['step_batch_size'], shuffle=True, num_workers=self.conf['num_workers'])
+        self.train_loader = DataLoader(self.train_dataset, batch_size=self.conf['step_batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
         self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.conf['step_batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
         self.test_loader = DataLoader(self.test_dataset, batch_size=self.conf['step_batch_size'], shuffle=False, num_workers=self.conf['num_workers'])
 
@@ -98,6 +98,9 @@ class Inference:
                 inputs = batch["pixel_values"]
                 if len(inputs.shape) == 3:
                     inputs = inputs.unsqueeze(0)
+                if isinstance(image_names, str):
+                    image_names = (image_names, )
+
                 
                 inputs = inputs.to('cuda')
                 outputs = self.model(inputs).logits
