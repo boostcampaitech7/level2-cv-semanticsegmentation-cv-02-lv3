@@ -1,0 +1,6 @@
+{
+    "run_name_format": "{model_name}_{crop_type}_img_size_{image_size[0]}",
+    "crop_type": "crop_arm",
+    "image_size": [1024, 1024],
+    "max_epoch": 20
+}

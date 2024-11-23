@@ -1,0 +1,9 @@
+{
+    "run_name_format": "cont/cont_{crop_type}_img_size_{image_size[0]}",
+    "crop_type": "crop_finger",
+    "image_size": [1024, 1024],
+    "max_epoch": 20,
+    "model_name": null,
+    "learning_rate": 1e-5,
+    "trained_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1122/trained_models/openmmlab/upernet-convnext-small_crop_finger_img_size_1024"
+}

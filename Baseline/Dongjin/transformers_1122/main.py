@@ -34,6 +34,9 @@ if __name__ == '__main__':
     if conf['debug'] == False:
         utils.load_wandb(conf) # wandb 설정
 
+    if conf['trained_path'] is not None:
+        conf['trained_path'] = utils.get_saved_model_dir_path(conf['trained_path'])
+
     # 실험 조건 저장
     save_conf_path = os.path.join(conf['model_dir_path'], 'exp.json')
     os.makedirs(conf['model_dir_path'], exist_ok=True)

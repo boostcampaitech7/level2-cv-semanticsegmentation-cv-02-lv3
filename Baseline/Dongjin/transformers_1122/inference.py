@@ -52,23 +52,33 @@ class Inference:
         self.model = AutoModelForSemanticSegmentation.from_pretrained(self.saved_model_dir_path).to(self.conf['device'])
 
         self.load_dataset_and_loader()
-        self.classes = get_xray_classes()
+        self.classes = get_xray_classes(self.conf['crop_type'])
 
 
     def load_dataset_and_loader(self):
-        self.train_dataset = XRayDataset(mode='train', 
+        crop_info = None
+        if self.conf['crop_info_path']:
+            crop_info = utils.read_json(self.conf['crop_info_path'])
+
+        self.train_dataset = XRayDataset(mode='train',
+                                        crop_type=self.conf['crop_type'],
+                                        crop_info=crop_info, 
                                         transforms=None, 
                                         image_processor=self.image_processor,
                                         data_dir_path=self.conf['data_dir_path'],
                                         data_info_path=self.conf['train_json_path'])
 
         self.valid_dataset = XRayDataset(mode='valid', 
+                                        crop_type=self.conf['crop_type'],
+                                        crop_info=crop_info,
                                         transforms=None, 
                                         image_processor=self.image_processor,
                                         data_dir_path=self.conf['data_dir_path'],
                                         data_info_path=self.conf['valid_json_path'])
 
         self.test_dataset = XRayDataset(mode='test', 
+                                        crop_type=self.conf['crop_type'],
+                                        crop_info=crop_info,
                                         transforms=None, 
                                         image_processor=self.image_processor,
                                         data_dir_path=self.conf['data_dir_path'],
@@ -96,6 +106,8 @@ class Inference:
         with torch.no_grad():
             for batch, image_names in tqdm(data_loader, total=len(data_loader)):
                 inputs = batch["pixel_values"]
+                crop = batch['crop']
+
                 if len(inputs.shape) == 3:
                     inputs = inputs.unsqueeze(0)
                 if isinstance(image_names, str):
@@ -105,7 +117,18 @@ class Inference:
                 inputs = inputs.to('cuda')
                 outputs = self.model(inputs).logits
                 
-                outputs = F.interpolate(outputs, size=(2048, 2048), mode="bilinear")
+                if crop is None:
+                    outputs = F.interpolate(outputs, size=(2048, 2048), mode="bilinear")
+                else:
+                    INF = 100
+                    x1, x2, y1, y2 = crop
+                    w, h = x2-x1+1, y2-y1+1 
+                    temp = F.interpolate(outputs, size=(h, w), mode="bilinear")
+                    outputs = -INF * torch.ones(temp.shape[0], temp.shape[1], 2048, 2048).to('cuda')
+                    outputs[:, :, y1:y2+1, x1:x2+1] = temp
+                    del temp
+
+
                 outputs = torch.sigmoid(outputs)
                 outputs = (outputs > thr).detach().cpu().numpy()
                 
@@ -137,4 +160,10 @@ class Inference:
         df.to_csv(save_path, index=False)
 
 
+if __name__=='__main__':
+    model_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1122/trained_models/openmmlab/upernet-convnext-small_crop_backhand'
+    inference = Inference(model_dir_path)
+    # inference.inference_and_save(mode='valid')
+    inference.inference_and_save(mode='test')
+    inference.inference_and_save(mode='train')
 

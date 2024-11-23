@@ -131,9 +131,13 @@ class XRayDataset(Dataset):
             transform = A.Compose([
                         A.Crop(x_min=x1, y_min=y1, x_max=x2+1, y_max=y2+1)])
             
-            result = transform(image=image, mask=label)
-            image = result['image']
-            label = result['mask']
+            if label is not None:
+                result = transform(image=image, mask=label)
+                image = result['image']
+                label = result['mask']
+            else: 
+                result = transform(image=image)
+                image = result['image']
 
         # transforms가 있으면 image와 label(mask) 변환
         if self.transforms is not None:
@@ -162,7 +166,8 @@ class XRayDataset(Dataset):
             result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
         
         if result is None:
-            result = {'image': image, 'labels': label, 'crop': crop_coodinate}
+            result = {'image': image, 'labels': label}
+        result['crop'] = crop_coodinate
             
         return result, image_name
     

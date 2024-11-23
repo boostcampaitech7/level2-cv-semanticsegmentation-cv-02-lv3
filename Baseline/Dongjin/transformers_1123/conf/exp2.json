@@ -1,0 +1,6 @@
+{
+    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}",
+    "crop_type": "crop_backhand",
+    "max_epoch": 20,
+    "train_transform_type": 2
+}
