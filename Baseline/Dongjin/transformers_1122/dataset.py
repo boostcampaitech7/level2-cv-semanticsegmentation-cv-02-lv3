@@ -4,9 +4,10 @@ import numpy as np
 import torch
 import os
 import utils
+import albumentations as A
 
 
-def get_xray_classes():
+def get_xray_classes(crop_type=None):
     classes = [
         'finger-1', 'finger-2', 'finger-3', 'finger-4', 'finger-5',
         'finger-6', 'finger-7', 'finger-8', 'finger-9', 'finger-10',
@@ -15,12 +16,31 @@ def get_xray_classes():
         'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
         'Triquetrum', 'Pisiform', 'Radius', 'Ulna',
     ]
-        
+
+    finger_idx = list(range(0, 19))
+    backhand_idx = list(range(19, 27))
+    arm_idx = list(range(27, 29))
+    fingerbackhand_idx = list(range(0, 27))
+    
+    idx = range(len(classes))
+
+    if crop_type is None:
+        pass
+    elif crop_type == 'crop_finger':
+        idx = finger_idx
+    elif crop_type == 'crop_backhand':
+        idx = backhand_idx
+    elif crop_type == 'crop_arm':
+        idx = arm_idx
+    elif crop_type == 'crop_fingerbackhand':
+        idx = fingerbackhand_idx
+    else:
+        raise(Exception(f"{crop_type} is not valid"))
+
+    classes = classes[idx]
     class2idx = {v: i for i, v in enumerate(classes)}
     idx2class = {v: k for k, v in class2idx.items()}
     num_class = len(classes)
-
-    finger_idx = [0, 1, 2, 3]
 
     dicts = {}
     dicts['classes'] = classes
@@ -28,17 +48,14 @@ def get_xray_classes():
     dicts['idx2class'] = idx2class
     dicts['num_class'] = num_class
 
-    dicts['finger_idx'] = list(range(0, 19))
-    dicts['backhand_idx'] = list(range(19, 27))
-    dicts['arm_idx'] = list(range(27, 29))
-    dicts['fingerbackhand_idx'] = list(range(0, 27))
-
     return dicts
 
 
 class XRayDataset(Dataset):
     def __init__(self, 
                  mode='train',
+                 crop_type=None,
+                 crop_info=None,
                  transforms=None,
                  image_processor=None,
                  data_dir_path=None,
@@ -47,6 +64,8 @@ class XRayDataset(Dataset):
                  ):
         
         self.mode = mode
+        self.crop_type = crop_type
+        self.crop_info = crop_info
         self.transforms = transforms
         self.image_processor = image_processor
         self.data_dir_path = data_dir_path
@@ -58,7 +77,7 @@ class XRayDataset(Dataset):
             self.image_paths = self.image_paths[0:16]
             self.anns_paths = self.anns_paths[0:16]
         
-        dicts = get_xray_classes() # xray 이미지 클래스 정보 불러오기
+        dicts = get_xray_classes(crop_type) # xray 이미지 클래스 정보 불러오기
         self.num_class = dicts['num_class']
         self.class2idx = dicts['class2idx']
 
@@ -103,7 +122,21 @@ class XRayDataset(Dataset):
         # loss 계산 / evaluation에서 사용할 labels(mask) 생성
         if self.anns_paths is not None:
             label = self.load_label(item, image.shape)
+
+        # crop 정보가 있으면 crop 수행
+        crop_coodinate = None
+        if self.crop_type is not None:
+            x1, x2, y1, y2 = self.crop_info[image_name][self.crop_type]
+            crop_coodinate = [x1, x2, y1, y2]
             
+            crop_transform = A.Compose([
+                A.crop(x_min=x1, y_min=y1, x_max=x2+1, y_max=y2+1)
+            ])
+
+            result = crop_transform(image=image, mask=label)
+            image = result['image']
+            label = result['mask']
+
         # transforms가 있으면 image와 label(mask) 변환
         if self.transforms is not None:
             result = self.transforms(image=image, mask=label)
@@ -131,7 +164,7 @@ class XRayDataset(Dataset):
             result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
         
         if result is None:
-            result = {'image': image, 'labels': label}
+            result = {'image': image, 'labels': label, 'crop': crop_coodinate}
             
         return result, image_name
     

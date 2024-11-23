@@ -138,7 +138,6 @@ class Trainer:
         return results
      
     
-
  
     def log(self, epoch, train_log, valid_log):
         log_path = os.path.join(self.conf['model_dir_path'], 'log.json')
@@ -189,15 +188,23 @@ class Trainer:
 
     def load_dataloader(self):
         self.load_image_processor()
+        self.conf['crop_info'] = None
 
-        self.train_dataset = XRayDataset(mode='train', 
+        if self.conf['crop_type']:
+            self.conf['crop_info'] = utils.read_json(self.conf['crop_info_path'])
+
+        self.train_dataset = XRayDataset(mode='train',
+                                    crop_type=self.conf['crop_type'],
+                                    crop_info=self.conf['crop_info'],
                                     transforms=self.load_train_transforms(), 
                                     image_processor=self.image_processor,
                                     data_dir_path=self.conf['data_dir_path'],
                                     data_info_path=self.conf['train_json_path'],
                                     debug=self.conf['debug'])
         
-        self.valid_dataset = XRayDataset(mode='valid', 
+        self.valid_dataset = XRayDataset(mode='valid',
+                                    crop_type=self.conf['crop_type'],
+                                    crop_info=self.conf['crop_info'],
                                     transforms=None, 
                                     image_processor=self.image_processor,
                                     data_dir_path=self.conf['data_dir_path'],
@@ -209,7 +216,7 @@ class Trainer:
     
 
     def load_model(self):
-        self.xray_classes = get_xray_classes()
+        self.xray_classes = get_xray_classes(self.conf['crop_type'])
         
         if self.conf['trained_path'] is None:
             self.model = AutoModelForSemanticSegmentation.from_pretrained(
