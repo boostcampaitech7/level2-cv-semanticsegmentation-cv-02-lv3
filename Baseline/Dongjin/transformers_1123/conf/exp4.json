@@ -1,8 +1,7 @@
 {
-    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}_img_size_{image_size[0]}",
-    "crop_type": "crop_arm",
-    "model_name": "openmmlab/upernet-convnext-small",
-    "image_size": [1024, 1024],
-    "max_epoch": 50,
-    "train_transform_type": 1
+    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}_img_{image_size[0]}",
+    "crop_type": "crop_backhand",
+    "max_epoch": 30,
+    "train_transform_type": 0,
+    "image_size": [1024, 1024]
 }

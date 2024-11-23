@@ -87,6 +87,9 @@ class Trainer:
 
         with tqdm(loader, unit="batch") as tepoch:
             for i, (batch, _) in enumerate(tepoch):
+                if len(inputs.shape) == 3:
+                    inputs = inputs.unsqueeze(0)
+                    
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
                 outputs = self.model(inputs).logits
