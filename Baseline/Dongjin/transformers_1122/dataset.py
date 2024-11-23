@@ -37,7 +37,7 @@ def get_xray_classes(crop_type=None):
     else:
         raise(Exception(f"{crop_type} is not valid"))
 
-    classes = classes[idx]
+    classes = np.array(classes)[idx].tolist()
     class2idx = {v: i for i, v in enumerate(classes)}
     idx2class = {v: k for k, v in class2idx.items()}
     num_class = len(classes)
@@ -128,12 +128,10 @@ class XRayDataset(Dataset):
         if self.crop_type is not None:
             x1, x2, y1, y2 = self.crop_info[image_name][self.crop_type]
             crop_coodinate = [x1, x2, y1, y2]
+            transform = A.Compose([
+                        A.Crop(x_min=x1, y_min=y1, x_max=x2+1, y_max=y2+1)])
             
-            crop_transform = A.Compose([
-                A.crop(x_min=x1, y_min=y1, x_max=x2+1, y_max=y2+1)
-            ])
-
-            result = crop_transform(image=image, mask=label)
+            result = transform(image=image, mask=label)
             image = result['image']
             label = result['mask']
 
@@ -180,6 +178,9 @@ class XRayDataset(Dataset):
         # 클래스 별로 처리
         for ann in anns:
             class_name = ann["label"]
+            if class_name not in self.class2idx:
+                continue
+
             class_ind = self.class2idx[class_name]
             points = np.array(ann["points"])
 
