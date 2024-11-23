@@ -183,6 +183,7 @@ class Trainer:
         elif self.conf['train_transform_type'] == 2:
             train_transforms = A.Compose(
             [
+                A.HorizontalFlip(p=0.5),
                 A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5)
             ])
         
