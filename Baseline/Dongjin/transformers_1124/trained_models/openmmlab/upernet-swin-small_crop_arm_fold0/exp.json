@@ -1,14 +1,14 @@
 {
     "run_name_format": "{model_name}_{crop_type}_fold0",
-    "model_name": "nvidia/mit-b2",
+    "model_name": "openmmlab/upernet-swin-small",
     "num_workers": 8,
     "batch_size": 8,
     "step_batch_size": 2,
     "learning_rate": 0.0001,
-    "max_epoch": 40,
+    "max_epoch": 20,
     "class_weights": null,
     "image_size": null,
-    "crop_type": "crop_finger",
+    "crop_type": "crop_arm",
     "train_transform_type": 1,
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
@@ -19,6 +19,6 @@
     "device": "cuda",
     "debug": false,
     "work_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124",
-    "run_name": "mit-b2_crop_finger_fold0_0",
-    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/nvidia/mit-b2_crop_finger_fold0_0"
+    "run_name": "upernet-swin-small_crop_arm_fold0",
+    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_arm_fold0"
 }
