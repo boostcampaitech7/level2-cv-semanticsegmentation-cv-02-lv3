@@ -86,12 +86,15 @@ class Trainer:
             raise(Exception(f"{mode} is not valid"))
 
         with tqdm(loader, unit="batch") as tepoch:
-            for i, (batch, _) in enumerate(tepoch):
-                if len(inputs.shape) == 3:
-                    inputs = inputs.unsqueeze(0)
-                    
+            for i, (batch, _) in enumerate(tepoch):                    
                 inputs = batch["pixel_values"].to(self.conf['device'])
                 labels = batch["labels"].to(self.conf['device'])
+
+                if len(inputs.shape) == 3:
+                    inputs = inputs.unsqueeze(0)
+                if len(labels.shape) == 3:
+                    labels = labels.unsqueeze(0)
+
                 outputs = self.model(inputs).logits
 
                 output_h, output_w = outputs.size(-2), outputs.size(-1)

@@ -1,8 +1,8 @@
 {
     "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}_img_{image_size[0]}",
-    "crop_type": "crop_finger",
-    "model_name": "openmmlab/upernet-convnext-xlarge",
-    "max_epoch": 40,
+    "crop_type": "crop_arm",
+    "model_name": "openmmlab/upernet-convnext-small",
+    "max_epoch": 20,
     "train_transform_type": 1,
-    "image_size": [800, 800]
+    "image_size": [1024, 1024]
 }

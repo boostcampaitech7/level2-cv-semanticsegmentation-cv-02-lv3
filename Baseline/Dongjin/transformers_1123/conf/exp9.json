@@ -1,0 +1,7 @@
+{
+    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}",
+    "crop_type": "crop_backhand",
+    "model_name": "openmmlab/upernet-convnext-xlarge",
+    "max_epoch": 40,
+    "train_transform_type": 1
+}
