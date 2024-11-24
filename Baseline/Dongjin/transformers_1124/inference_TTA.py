@@ -9,6 +9,8 @@ from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 import pandas as pd
+from argparse import ArgumentParser
+
 
 
 def encode_mask_to_rle(mask):
@@ -174,7 +176,8 @@ class Inference:
 
     #     df.to_csv(save_path, index=False)
 
-def load_ensemble_conf(work_dir_path, ensemble_conf_path):
+def load_ensemble_conf(work_dir_path, rel_ensemble_conf_path):
+    ensemble_conf_path = os.path.join(work_dir_path, rel_ensemble_conf_path)
     conf = utils.read_json(ensemble_conf_path)
     conf['model_dir_paths'] = []
 
@@ -184,30 +187,105 @@ def load_ensemble_conf(work_dir_path, ensemble_conf_path):
 
     if not utils.is_unique(conf['model_dir_paths']):
         raise(Exception("model_dir_paths are not unique"))
-
-    conf['run_name'] = conf['run_name_format'].format(**conf, n_models=len(conf['model_dir_paths']))
-    conf['save_dir_path'] = os.path.join(work_dir_path, f"ensemble/{conf['run_name']}")
+    
     conf['n_models'] = len(conf['model_dir_paths'])
+    conf['run_name'] = conf['run_name_format'].format(**conf)
+    conf['save_dir_path'] = os.path.join(work_dir_path, f"ensemble/{conf['run_name']}")
     os.makedirs(conf['save_dir_path'], exist_ok=True)
 
     return conf
 
+def get_n_data(inferences, dataset_attribute):
+    n_datas = [len(getattr(inference, dataset_attribute)) for inference in inferences]
+
+    if len(set(n_datas)) != 1:
+        raise(Exception("Number of images in dataset are not equal"))
+
+    return n_datas[0]
+
+def get_classes(inferences):
+    classes = inferences[0].classes
+    for i in range(1, len(inferences)):
+        new_classes = inferences[i].classes
+        if classes != new_classes:
+            raise(Exception("Classes are not equal"))
+    
+    return classes
+
+
+def ensemble_and_save(conf, mode):
+    save_path = os.path.join(conf['save_dir_path'], f"{mode}_{conf['run_name']}.csv")
+
+    if os.path.exists(save_path):
+        print(f'{save_path} already exists')
+        return
+
+    inferences = []
+    for model_dir_path in conf['model_dir_paths']:
+        inference = Inference(model_dir_path=model_dir_path, TTA=True)
+        inferences.append(inference)
+
+
+    dataset_attribute = f'{mode}_dataset'
+    n_data = get_n_data(inferences, dataset_attribute)
+    classes = get_classes(inferences)
+
+    filename_and_class = []
+    rles = []
+
+    for i in tqdm(range(n_data)): 
+        outputs = None
+        image_names = None
+
+        for inference in inferences:
+            if outputs is None:
+                outputs, image_names = inference.inference(mode=mode, idx=i)
+            else:
+                new_outputs, new_image_names = inference.inference(mode=mode, idx=i)
+                if new_image_names != image_names:
+                    raise(Exception("Image names are different!"))
+                outputs += new_outputs
+
+        outputs = outputs > conf['n_models'] / 2
+
+        if isinstance(image_names, str):
+            image_names = (image_names, )
+
+        for output, image_name in zip(outputs, image_names):
+            for c, segm in enumerate(output):
+                rle = encode_mask_to_rle(segm)
+                rles.append(rle)
+                filename_and_class.append(f"{classes['idx2class'][c]}_{image_name}")
+
+    
+    # 파일 저장하기
+    classes, filename = zip(*[x.split("_") for x in filename_and_class])
+    image_name = [os.path.basename(f) for f in filename]
+
+    df = pd.DataFrame({
+        "image_name": image_name,
+        "class": classes,
+        "rle": rles,
+    })
+
+    df.to_csv(save_path, index=False)
+
+
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument('--ensemble_path', type=str, default=None) 
+    args = parser.parse_args()
+    return args
+
 
 
 if __name__=='__main__':
-    crop_type = "finger"
-    rel_model_dir_path_formats = ["trained_models/nvidia/mit-b2_crop_{crop_type}_fold0"
-                                "trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold0",
-                                "trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold0"]
-
     work_dir_path = os.path.dirname(os.path.realpath(__file__))
-    model_dir_paths = []
 
-    for rel_model_dir_path_format in rel_model_dir_path_formats:
-        rel_model_dir_path = rel_model_dir_path_format.format(crop_type=crop_type)
-        model_dir_path = os.path.join(work_dir_path, rel_model_dir_path)
-        model_dir_paths.append(model_dir_path)
+    args = parse_args()
+    rel_ensemble_conf_path = args.ensemble_path
+    conf = load_ensemble_conf(work_dir_path=work_dir_path, rel_ensemble_conf_path=rel_ensemble_conf_path)
 
-    inference = Inference(model_dir_path, TTA=True)
-    
-
+    mode = 'test'
+    ensemble_and_save(conf, mode)
