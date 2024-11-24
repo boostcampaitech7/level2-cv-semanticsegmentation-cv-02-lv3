@@ -1,0 +1,8 @@
+{
+    "model_name": "nvidia/mit-b2",
+    "run_name_format": "{model_name}_{crop_type}_fold1",
+    "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_1.json",
+    "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_1.json",
+    "crop_type": "crop_finger",
+    "max_epoch": 40
+}

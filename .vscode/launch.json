@@ -12,7 +12,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["--exp_path", "conf/exp5.json"]
+            "args": ["--exp_path", "conf/test.json"]
         }
     ]
 }

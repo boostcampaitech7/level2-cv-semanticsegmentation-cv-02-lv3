@@ -1,0 +1,8 @@
+{
+    "model_name": "openmmlab/upernet-swin-small",
+    "run_name_format": "{model_name}_{crop_type}_fold4",
+    "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_4.json",
+    "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_4.json",
+    "crop_type": "crop_arm",
+    "max_epoch": 20
+}
