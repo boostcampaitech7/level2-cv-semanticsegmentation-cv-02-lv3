@@ -1,5 +1,5 @@
 {
-    "run_name": "{model_name}_{crop_type}_fold3",
+    "run_name_format": "{model_name}_{crop_type}_fold3",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_3.json",
     "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_3.json",
     "crop_type": "crop_backhand",
