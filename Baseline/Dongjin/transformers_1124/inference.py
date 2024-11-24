@@ -148,6 +148,7 @@ class Inference:
             save_path = os.path.join(self.model_dir_path, save_name)
 
         if os.path.exists(save_path):
+            print(f"{save_path} is already exist")
             return
 
         rles, filename_and_class = self.inference(mode, thr)
