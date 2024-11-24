@@ -9,7 +9,7 @@
     "class_weights": null,
     "image_size": null,
     "crop_type": null,
-    "train_transform_type": 0,
+    "train_transform_type": 1,
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
     "valid_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
