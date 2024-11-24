@@ -1,5 +1,5 @@
 {
-    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}_img_{image_size[0]}",
+    "run_name_format": "{model_name}_{crop_type}_transform_{train_transform_type}",
     "model_name": "openmmlab/upernet-convnext-small",
     "num_workers": 8,
     "batch_size": 8,
@@ -7,11 +7,8 @@
     "learning_rate": 0.0001,
     "max_epoch": 40,
     "class_weights": null,
-    "image_size": [
-        1024,
-        1024
-    ],
-    "crop_type": "crop_finger",
+    "image_size": null,
+    "crop_type": "crop_fingerbackhand",
     "train_transform_type": 1,
     "data_dir_path": "/data/ephemeral/home/data",
     "train_json_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Data/train_valid_split/splits/fold_0.json",
@@ -22,6 +19,6 @@
     "device": "cuda",
     "debug": false,
     "work_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123",
-    "run_name": "upernet-convnext-small_crop_finger_transform_1_img_1024",
-    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/trained_models/openmmlab/upernet-convnext-small_crop_finger_transform_1_img_1024"
+    "run_name": "upernet-convnext-small_crop_fingerbackhand_transform_1",
+    "model_dir_path": "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/trained_models/openmmlab/upernet-convnext-small_crop_fingerbackhand_transform_1"
 }

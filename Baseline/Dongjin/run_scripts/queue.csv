@@ -3,3 +3,4 @@ file_path,argument,start,end
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/main.py,--exp_path conf/exp6.json,24/11/23 21:55:32,24/11/24 00:13:58
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/main.py,--exp_path conf/exp10.json,24/11/24 02:03:16,24/11/24 03:02:31
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/main.py,--exp_path conf/exp11.json,24/11/24 03:02:32,24/11/24 03:27:15
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1123/main.py,--exp_path conf/exp12.json,24/11/24 04:40:43,
