@@ -99,3 +99,6 @@ def get_saved_model_dir_path(model_dir_path):
     path = paths[0]
     
     return path
+
+def is_unique(lst):
+    return len(lst) == len(set(lst))

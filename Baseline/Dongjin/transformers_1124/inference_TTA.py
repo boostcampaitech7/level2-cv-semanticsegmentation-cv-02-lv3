@@ -86,7 +86,13 @@ class Inference:
                                         data_info_path=self.conf['test_json_path'])
 
 
-    
+    def flip_crop(self, crop):
+        w, h = [2048, 2048]
+        x1, x2, y1, y2 = crop
+        x2, x1 = w-x1-1, w-x2-1
+
+        return x1, x2, y1, y2
+
     def predict(self, inputs, crop):
         if len(inputs.shape) == 3:
             inputs = inputs.unsqueeze(0)
@@ -105,15 +111,7 @@ class Inference:
             outputs[:, :, y1:y2+1, x1:x2+1] = temp
             del temp
 
-        return outputs
-
-
-    def flip_crop(self, crop):
-        w, h = [2048, 2048]
-        x1, x2, y1, y2 = crop
-        x2, x1 = w-x1-1, w-x2-1
-
-        return x1, x2, y1, y2
+        return outputs.sigmoid()
 
 
     def inference(self, mode, idx):
@@ -136,8 +134,8 @@ class Inference:
             outputs = outputs / 2
         else:
             outputs = self.predict(inputs, crop)
-            
-        return outputs, image_names
+
+        return outputs.detach().cpu(), image_names
 
 
                 # outputs = torch.sigmoid(outputs)
@@ -175,6 +173,25 @@ class Inference:
     #     })
 
     #     df.to_csv(save_path, index=False)
+
+def load_ensemble_conf(work_dir_path, ensemble_conf_path):
+    conf = utils.read_json(ensemble_conf_path)
+    conf['model_dir_paths'] = []
+
+    for model_dir_path_format in conf['model_dir_path_formats']:
+        model_dir_path = model_dir_path_format.format(**conf)
+        conf['model_dir_paths'].append(model_dir_path)
+
+    if not utils.is_unique(conf['model_dir_paths']):
+        raise(Exception("model_dir_paths are not unique"))
+
+    conf['run_name'] = conf['run_name_format'].format(**conf, n_models=len(conf['model_dir_paths']))
+    conf['save_dir_path'] = os.path.join(work_dir_path, f"ensemble/{conf['run_name']}")
+    conf['n_models'] = len(conf['model_dir_paths'])
+    os.makedirs(conf['save_dir_path'], exist_ok=True)
+
+    return conf
+
 
 
 if __name__=='__main__':
