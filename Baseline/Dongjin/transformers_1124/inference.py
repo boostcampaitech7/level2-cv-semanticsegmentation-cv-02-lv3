@@ -141,6 +141,15 @@ class Inference:
         return rles, filename_and_class
     
     def inference_and_save(self, mode, save_path=None, thr=0.5):
+        if save_path is None:
+            prefix = os.path.basename(self.model_dir_path)
+            suffix = os.path.basename(self.saved_model_dir_path)
+            save_name = f'{mode}_{prefix}_{suffix}.csv'
+            save_path = os.path.join(self.model_dir_path, save_name)
+
+        if os.path.exists(save_path):
+            return
+
         rles, filename_and_class = self.inference(mode, thr)
         classes, filename = zip(*[x.split("_") for x in filename_and_class])
         image_name = [os.path.basename(f) for f in filename]
@@ -151,19 +160,13 @@ class Inference:
             "rle": rles,
         })
 
-        if save_path is None:
-            prefix = os.path.basename(self.model_dir_path)
-            suffix = os.path.basename(self.saved_model_dir_path)
-            save_name = f'{mode}_{prefix}_{suffix}.csv'
-            save_path = os.path.join(self.model_dir_path, save_name)
-
         df.to_csv(save_path, index=False)
 
 
 if __name__=='__main__':
     model_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1122/trained_models/openmmlab/upernet-convnext-small_crop_backhand'
     inference = Inference(model_dir_path)
-    # inference.inference_and_save(mode='valid')
+    inference.inference_and_save(mode='valid')
     inference.inference_and_save(mode='test')
     inference.inference_and_save(mode='train')
 
