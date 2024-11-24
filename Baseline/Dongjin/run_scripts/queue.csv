@@ -7,9 +7,9 @@ file_path,argument,start,end
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp5_1.json,24/11/24 11:16:20,24/11/24 12:01:52
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp5_2.json,24/11/24 12:01:53,24/11/24 12:31:19
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp10_0.json,24/11/24 12:31:20,24/11/24 13:20:08
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp10_1.json,24/11/24 13:20:09,
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp10_2.json,,
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp1_1.json,,
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp10_1.json,24/11/24 13:20:09,24/11/24 13:48:01
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp10_2.json,24/11/24 13:48:02,24/11/24 14:06:46
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp1_1.json,24/11/24 14:06:47,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp1_2.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp2_0.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/main.py,--exp_path conf/exp2_1.json,,
