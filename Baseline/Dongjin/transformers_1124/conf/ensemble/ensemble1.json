@@ -2,9 +2,16 @@
     "run_name_format": "ensemble_crop_{crop_type}_TTA_{TTA}_{n_models}-models",
     "crop_type": "arm",
     "model_dir_path_formats": [
-        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/nvidia/mit-b2_crop_{crop_type}_fold0",
         "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold0",
-        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold0"
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold0",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold1",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold1",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold2",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold2",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold3",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold3",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-convnext-small_crop_{crop_type}_fold4",
+        "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/trained_models/openmmlab/upernet-swin-small_crop_{crop_type}_fold4"
     ],
-    "TTA": false
+    "TTA": true
 }

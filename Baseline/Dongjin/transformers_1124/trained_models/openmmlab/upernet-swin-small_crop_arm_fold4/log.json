@@ -79,6 +79,246 @@
                 "Ulna": 0.9813761711120605
             },
             "valid_run_time": 8.641783237457275
+        },
+        "6": {
+            "train_loss": 0.014345958371995949,
+            "train_dice": 0.9887842535972595,
+            "train_dices_per_class": {
+                "Radius": 0.989325225353241,
+                "Ulna": 0.9882432818412781
+            },
+            "train_run_time": 78.03492999076843,
+            "valid_loss": 0.0310804539360106,
+            "valid_dice": 0.9821504354476929,
+            "valid_dices_per_class": {
+                "Radius": 0.9828983545303345,
+                "Ulna": 0.981402575969696
+            },
+            "valid_run_time": 8.511477947235107
+        },
+        "7": {
+            "train_loss": 0.013982862929697148,
+            "train_dice": 0.9883280992507935,
+            "train_dices_per_class": {
+                "Radius": 0.9891476631164551,
+                "Ulna": 0.9875084757804871
+            },
+            "train_run_time": 78.0371880531311,
+            "valid_loss": 0.031395128776784985,
+            "valid_dice": 0.9823545217514038,
+            "valid_dices_per_class": {
+                "Radius": 0.9830390810966492,
+                "Ulna": 0.9816700220108032
+            },
+            "valid_run_time": 8.520402193069458
+        },
+        "8": {
+            "train_loss": 0.01310894038178958,
+            "train_dice": 0.9888807535171509,
+            "train_dices_per_class": {
+                "Radius": 0.9893497228622437,
+                "Ulna": 0.9884117245674133
+            },
+            "train_run_time": 78.11315488815308,
+            "valid_loss": 0.030299664416816086,
+            "valid_dice": 0.9830763339996338,
+            "valid_dices_per_class": {
+                "Radius": 0.9836763143539429,
+                "Ulna": 0.9824763536453247
+            },
+            "valid_run_time": 8.80009913444519
+        },
+        "9": {
+            "train_loss": 0.012201659780112095,
+            "train_dice": 0.9893521070480347,
+            "train_dices_per_class": {
+                "Radius": 0.9900704622268677,
+                "Ulna": 0.9886337518692017
+            },
+            "train_run_time": 77.76757407188416,
+            "valid_loss": 0.02995072896592319,
+            "valid_dice": 0.9831029176712036,
+            "valid_dices_per_class": {
+                "Radius": 0.9837730526924133,
+                "Ulna": 0.9824327230453491
+            },
+            "valid_run_time": 8.424399137496948
+        },
+        "10": {
+            "train_loss": 0.012257079052506014,
+            "train_dice": 0.9891143441200256,
+            "train_dices_per_class": {
+                "Radius": 0.989985466003418,
+                "Ulna": 0.9882432222366333
+            },
+            "train_run_time": 77.78559041023254,
+            "valid_loss": 0.03126087120035663,
+            "valid_dice": 0.9812873601913452,
+            "valid_dices_per_class": {
+                "Radius": 0.981914222240448,
+                "Ulna": 0.9806604385375977
+            },
+            "valid_run_time": 8.470075368881226
+        },
+        "11": {
+            "train_loss": 0.011584937490988522,
+            "train_dice": 0.9895262718200684,
+            "train_dices_per_class": {
+                "Radius": 0.9901711344718933,
+                "Ulna": 0.9888814687728882
+            },
+            "train_run_time": 78.12423539161682,
+            "valid_loss": 0.03143278714851476,
+            "valid_dice": 0.9813721776008606,
+            "valid_dices_per_class": {
+                "Radius": 0.982251763343811,
+                "Ulna": 0.9804925918579102
+            },
+            "valid_run_time": 8.899009704589844
+        },
+        "12": {
+            "train_loss": 0.011067746041226201,
+            "train_dice": 0.9897682666778564,
+            "train_dices_per_class": {
+                "Radius": 0.9904624819755554,
+                "Ulna": 0.9890741109848022
+            },
+            "train_run_time": 77.9169647693634,
+            "valid_loss": 0.03153920056065544,
+            "valid_dice": 0.9814760684967041,
+            "valid_dices_per_class": {
+                "Radius": 0.9818490743637085,
+                "Ulna": 0.9811031222343445
+            },
+            "valid_run_time": 8.547518014907837
+        },
+        "13": {
+            "train_loss": 0.010796180156467017,
+            "train_dice": 0.9898501634597778,
+            "train_dices_per_class": {
+                "Radius": 0.9906023144721985,
+                "Ulna": 0.9890979528427124
+            },
+            "train_run_time": 77.77162599563599,
+            "valid_loss": 0.03189832980860956,
+            "valid_dice": 0.9814435243606567,
+            "valid_dices_per_class": {
+                "Radius": 0.9818296432495117,
+                "Ulna": 0.9810574650764465
+            },
+            "valid_run_time": 8.524287939071655
+        },
+        "14": {
+            "train_loss": 0.010574136447394267,
+            "train_dice": 0.9899191856384277,
+            "train_dices_per_class": {
+                "Radius": 0.9907190203666687,
+                "Ulna": 0.9891193509101868
+            },
+            "train_run_time": 78.22030735015869,
+            "valid_loss": 0.03241939144791104,
+            "valid_dice": 0.9813485145568848,
+            "valid_dices_per_class": {
+                "Radius": 0.9816449880599976,
+                "Ulna": 0.981052041053772
+            },
+            "valid_run_time": 8.581282138824463
+        },
+        "15": {
+            "train_loss": 0.01037502359249629,
+            "train_dice": 0.9900130033493042,
+            "train_dices_per_class": {
+                "Radius": 0.9907279014587402,
+                "Ulna": 0.9892981648445129
+            },
+            "train_run_time": 78.29597496986389,
+            "valid_loss": 0.0326062083709985,
+            "valid_dice": 0.9814399480819702,
+            "valid_dices_per_class": {
+                "Radius": 0.9818817377090454,
+                "Ulna": 0.9809982180595398
+            },
+            "valid_run_time": 8.539779663085938
+        },
+        "16": {
+            "train_loss": 0.010254768264712767,
+            "train_dice": 0.9900767803192139,
+            "train_dices_per_class": {
+                "Radius": 0.990864634513855,
+                "Ulna": 0.9892889261245728
+            },
+            "train_run_time": 78.26308107376099,
+            "valid_loss": 0.03309655489283614,
+            "valid_dice": 0.9813277721405029,
+            "valid_dices_per_class": {
+                "Radius": 0.9816287755966187,
+                "Ulna": 0.9810267686843872
+            },
+            "valid_run_time": 8.558748722076416
+        },
+        "17": {
+            "train_loss": 0.010068233766651247,
+            "train_dice": 0.9901624917984009,
+            "train_dices_per_class": {
+                "Radius": 0.9910171627998352,
+                "Ulna": 0.9893077611923218
+            },
+            "train_run_time": 78.2044575214386,
+            "valid_loss": 0.03359489553258754,
+            "valid_dice": 0.9810305833816528,
+            "valid_dices_per_class": {
+                "Radius": 0.9813767671585083,
+                "Ulna": 0.9806844592094421
+            },
+            "valid_run_time": 8.504632711410522
+        },
+        "18": {
+            "train_loss": 0.010506309935590253,
+            "train_dice": 0.9897233247756958,
+            "train_dices_per_class": {
+                "Radius": 0.9904642105102539,
+                "Ulna": 0.9889824986457825
+            },
+            "train_run_time": 78.91924500465393,
+            "valid_loss": 0.03191597862169147,
+            "valid_dice": 0.9827859401702881,
+            "valid_dices_per_class": {
+                "Radius": 0.9838530421257019,
+                "Ulna": 0.9817188382148743
+            },
+            "valid_run_time": 8.845322132110596
+        },
+        "19": {
+            "train_loss": 0.01022292734705843,
+            "train_dice": 0.9899730682373047,
+            "train_dices_per_class": {
+                "Radius": 0.9907388687133789,
+                "Ulna": 0.9892072677612305
+            },
+            "train_run_time": 78.62902688980103,
+            "valid_loss": 0.03287806503358297,
+            "valid_dice": 0.9819567203521729,
+            "valid_dices_per_class": {
+                "Radius": 0.9827272295951843,
+                "Ulna": 0.9811862111091614
+            },
+            "valid_run_time": 8.593790292739868
+        },
+        "20": {
+            "train_loss": 0.010323404402879533,
+            "train_dice": 0.9898886680603027,
+            "train_dices_per_class": {
+                "Radius": 0.9905608296394348,
+                "Ulna": 0.9892164468765259
+            },
+            "train_run_time": 78.06871962547302,
+            "valid_loss": 0.032932679931400345,
+            "valid_dice": 0.9819076061248779,
+            "valid_dices_per_class": {
+                "Radius": 0.9828179478645325,
+                "Ulna": 0.9809972643852234
+            },
+            "valid_run_time": 8.643248558044434
         }
     }
 }
