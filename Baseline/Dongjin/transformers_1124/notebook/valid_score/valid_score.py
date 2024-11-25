@@ -101,8 +101,7 @@ def get_valid_score(current_dir_path, predict_path):
 if __name__ == '__main__':
     work_dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    predict_paths = ["/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result/1125_valid_ensemble_crop_TTA_False_3-models.csv",
-                     "/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result/1125_valid_ensemble_crop_TTA_True_3-models.csv"]
+    predict_paths = ["/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result/1125_valid_upernet-convnext-small-fold0.csv"]
 
     for predict_path in predict_paths:
         get_valid_score(work_dir_path, predict_path)
