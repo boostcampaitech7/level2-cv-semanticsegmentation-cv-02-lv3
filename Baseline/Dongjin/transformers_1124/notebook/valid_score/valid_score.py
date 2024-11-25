@@ -94,14 +94,15 @@ def get_valid_score(current_dir_path, predict_path):
     dicts['dices_mean'] = results.mean(dim=0).tolist()
     dicts['dices_std'] = results.std(dim=0).tolist()
     dicts['results'] = results.tolist()
+    dicts['image_names'] = image_names
 
     print(f"{save_name}: total_dices_mean: {dicts['total_dices_mean']:.4f}")
     utils.save_json(dicts, save_path)
 
 if __name__ == '__main__':
     work_dir_path = os.path.dirname(os.path.realpath(__file__))
-
-    predict_paths = ["/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result/1125_valid_upernet-convnext-small-fold0.csv"]
+    predict_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result'
+    predict_paths = glob(predict_dir_path + '/*valid*.csv')
 
     for predict_path in predict_paths:
         get_valid_score(work_dir_path, predict_path)
