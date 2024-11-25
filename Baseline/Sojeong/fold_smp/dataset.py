@@ -83,7 +83,9 @@ class XRayDataset(Dataset):
         image_path = os.path.join(self.image_root, image_name)
         
         image = cv2.imread(image_path)
-        image = image / 255.
+        # image = image / 255.
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # RGB로 변환
+        image = (image / 255.).astype(np.float32)       # 타입 변환
         
         label_name = self.labelnames[item]
         label_path = os.path.join(self.label_root, label_name)

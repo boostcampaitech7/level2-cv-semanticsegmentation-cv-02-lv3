@@ -6,7 +6,11 @@ import datetime
 from functools import partial
 import segmentation_models_pytorch as smp
 from dotenv import load_dotenv
+from tqdm.auto import tqdm
+from tqdm.auto import tqdm
 # pip install git+https://github.com/qubvel/segmentation_models.pytorch
+from loss import HybridLoss
+from loss import BCEDiceLoss
 
 # external library
 import cv2
@@ -54,7 +58,7 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}_fold{args.fold}",config={
+    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}_fold{args.fold}_hybrid2",config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
@@ -92,9 +96,30 @@ split_file = args.json_dir+f'/fold_{args.fold}.json'
 # dataset
 #tf = A.Resize(512, 512)
 resize_height, resize_width = args.resize
-tf = A.Resize(resize_height, resize_width)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf, split_file=split_file)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf, split_file=split_file)
+train_tf = A.Compose(
+            [
+                A.Resize(resize_height, resize_width),
+                # A.HorizontalFlip(p=0.5),
+                # A.RandomBrightnessContrast(p=0.2),
+                # A.HueSaturationValue(p=0.2),
+                A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5),
+                #ToTensorV2(),
+            ])
+valid_tf = A.Resize(resize_height, resize_width)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=train_tf, split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=valid_tf, split_file=split_file)
+train_tf = A.Compose(
+            [
+                A.Resize(resize_height, resize_width),
+                # A.HorizontalFlip(p=0.5),
+                # A.RandomBrightnessContrast(p=0.2),
+                # A.HueSaturationValue(p=0.2),
+                A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5),
+                #ToTensorV2(),
+            ])
+valid_tf = A.Resize(resize_height, resize_width)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=train_tf, split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=valid_tf, split_file=split_file)
 
 # dataloader
 train_loader = DataLoader(
@@ -114,7 +139,22 @@ valid_loader = DataLoader(
     drop_last=False
 )
 
+# Train 데이터 로딩 진행 표시
+for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc="Loading Train Data")):
+    pass  # 출력 없이 데이터 로드만 진행
 
+# Valid 데이터 로딩 진행 표시
+for batch_idx, (images, labels) in enumerate(tqdm(valid_loader, desc="Loading Validation Data")):
+    pass
+    
+# Train 데이터 로딩 진행 표시
+for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc="Loading Train Data")):
+    pass  # 출력 없이 데이터 로드만 진행
+
+# Valid 데이터 로딩 진행 표시
+for batch_idx, (images, labels) in enumerate(tqdm(valid_loader, desc="Loading Validation Data")):
+    pass
+    
 # model
 seg_model_name = getattr(smp, args.seg_model, None)
 
@@ -129,8 +169,9 @@ else:
     raise ValueError(f"Segmentation model '{args.seg_model}' is not available in smp.")
 
 # Loss function을 정의합니다.
-criterion = nn.BCEWithLogitsLoss()
-
+#criterion = nn.BCEWithLogitsLoss()
+#criterion = HybridLoss(alpha=0.75, gamma=2.0, weight_bce=0.7, weight_focal=0.3)
+criterion = BCEDiceLoss(weight_bce=0.5, weight_dice=0.5)
 # Optimizer를 정의합니다.
 optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 
