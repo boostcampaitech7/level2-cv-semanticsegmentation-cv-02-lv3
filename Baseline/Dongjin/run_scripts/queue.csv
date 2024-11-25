@@ -2,3 +2,4 @@ file_path,argument,start,end
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble4.json,24/11/25 14:48:03,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble5.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble6.json,,
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_run.py
