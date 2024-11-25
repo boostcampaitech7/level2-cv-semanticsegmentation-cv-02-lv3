@@ -140,42 +140,6 @@ class Inference:
         return outputs.detach().cpu(), image_names
 
 
-                # outputs = torch.sigmoid(outputs)
-                # outputs = (outputs > thr).detach().cpu().numpy()
-
-
-                
-    #             for output, image_name in zip(outputs, image_names):
-    #                 for c, segm in enumerate(output):
-    #                     rle = encode_mask_to_rle(segm)
-    #                     rles.append(rle)
-    #                     filename_and_class.append(f"{self.classes['idx2class'][c]}_{image_name}")
-                        
-    #     return rles, filename_and_class
-    
-    # def inference_and_save(self, mode, save_path=None, thr=0.5):
-    #     if save_path is None:
-    #         prefix = os.path.basename(self.model_dir_path)
-    #         suffix = os.path.basename(self.saved_model_dir_path)
-    #         save_name = f'{mode}_{prefix}_{suffix}.csv'
-    #         save_path = os.path.join(self.model_dir_path, save_name)
-
-    #     if os.path.exists(save_path):
-    #         print(f"{save_path} is already exist")
-    #         return
-
-    #     rles, filename_and_class = self.inference(mode, thr)
-    #     classes, filename = zip(*[x.split("_") for x in filename_and_class])
-    #     image_name = [os.path.basename(f) for f in filename]
-
-    #     df = pd.DataFrame({
-    #         "image_name": image_name,
-    #         "class": classes,
-    #         "rle": rles,
-    #     })
-
-    #     df.to_csv(save_path, index=False)
-
 def load_ensemble_conf(work_dir_path, rel_ensemble_conf_path):
     ensemble_conf_path = os.path.join(work_dir_path, rel_ensemble_conf_path)
     conf = utils.read_json(ensemble_conf_path)
@@ -191,7 +155,10 @@ def load_ensemble_conf(work_dir_path, rel_ensemble_conf_path):
     conf['n_models'] = len(conf['model_dir_paths'])
     conf['run_name'] = conf['run_name_format'].format(**conf)
     conf['save_dir_path'] = os.path.join(work_dir_path, f"ensemble/{conf['run_name']}")
+    
     os.makedirs(conf['save_dir_path'], exist_ok=True)
+    save_ensemble_conf_path = os.path.join(conf['save_dir_path'], f"{conf['run_name']}.json")
+    utils.save_json(conf, save_ensemble_conf_path)
 
     return conf
 
@@ -287,5 +254,6 @@ if __name__=='__main__':
     rel_ensemble_conf_path = args.ensemble_path
     conf = load_ensemble_conf(work_dir_path=work_dir_path, rel_ensemble_conf_path=rel_ensemble_conf_path)
 
-    mode = 'test'
-    ensemble_and_save(conf, mode)
+    modes = ['valid', 'test']
+    for mode in modes:
+        ensemble_and_save(conf, mode)
