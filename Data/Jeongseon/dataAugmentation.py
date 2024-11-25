@@ -97,7 +97,7 @@ def get_crop_parameters(original_image):
 
 def create_augmentation_transforms(h_flip, v_flip, brightness, blur, crop_width, crop_height,
                                    hue_shift, sat_shift, val_shift, grid_num_steps, grid_distort_limit,
-                                   alpha, sigma, scale, rotate_limit, dilation_kernel_size, erosion_kernel_size):
+                                   alpha, sigma, scale, rotate_limit, dilation_kernel_size, erosion_kernel_size, contrast_limit, brightness_contrast_prob):
     """증강 옵션 리스트 생성"""
     transforms = []
     
@@ -134,6 +134,15 @@ def create_augmentation_transforms(h_flip, v_flip, brightness, blur, crop_width,
     if erosion_kernel_size > 0:
         kernel = np.ones((erosion_kernel_size, erosion_kernel_size), np.uint8)
         transforms.append(A.Lambda(image=lambda img, **kwargs: cv2.erode(img, kernel), p=1.0))
+
+
+    # Brightness-Contrast 추가
+    if contrast_limit[0] != 0 or contrast_limit[1] != 0:
+        transforms.append(A.RandomBrightnessContrast(
+            brightness_limit=0,
+            contrast_limit=contrast_limit,
+            p=brightness_contrast_prob
+        ))
     
     return A.Compose(transforms, keypoint_params=A.KeypointParams(format='xy', remove_invisible=False))
 
@@ -261,8 +270,8 @@ def main():
 
     h_flip = st.sidebar.checkbox("Horizontal Flip")
     v_flip = st.sidebar.checkbox("Vertical Flip")
-    brightness = st.sidebar.slider("Brightness (Contrast Adjustment)", min_value=1, max_value=10, step=1, value=1)
-    blur = st.sidebar.slider("Blur Level", min_value=1, max_value=31, step=2, value=1)
+    brightness = st.sidebar.slider("Brightness (Contrast Adjustment)", min_value=0, max_value=10, step=1, value=0)
+    blur = st.sidebar.slider("Blur Level", min_value=0, max_value=31, step=2, value=0)
 
     #apply_crop = st.sidebar.checkbox("Center Crop 적용")
     #crop = st.sidebar.slider("Crop Size", min_value=50, max_value=min(original_image.size), step=10, value=100) if apply_crop else 0
@@ -303,6 +312,16 @@ def main():
     apply_erosion = st.sidebar.checkbox("Erosion 적용")
     erosion_kernel_size = st.sidebar.slider("Erosion Kernel Size", min_value=1, max_value=31, step=2, value=3) if apply_erosion else 0
 
+    # Contrast Adjustment Parameters
+    apply_brightness_contrast = st.sidebar.checkbox("Brightness-Contrast 적용")
+    contrast_limit = st.sidebar.slider(
+        "Contrast Limit", min_value=-1.0, max_value=1.0, step=0.1, value=(-0.5, 0.5)
+    ) if apply_brightness_contrast else (0.0, 0.0)
+    brightness_contrast_prob = st.sidebar.slider(
+        "Brightness-Contrast 적용 확률", min_value=0.0, max_value=1.0, step=0.1, value=1.0
+    ) if apply_brightness_contrast else 0.0
+
+
 
     # 증강 적용
     transform = create_augmentation_transforms(
@@ -322,7 +341,9 @@ def main():
         scale=scale,
         rotate_limit=rotate_limit,
         dilation_kernel_size=dilation_kernel_size,
-        erosion_kernel_size=erosion_kernel_size
+        erosion_kernel_size=erosion_kernel_size,
+        contrast_limit=contrast_limit,
+        brightness_contrast_prob=brightness_contrast_prob
     )
 
     # 이미지와 세그멘테이션 증강
