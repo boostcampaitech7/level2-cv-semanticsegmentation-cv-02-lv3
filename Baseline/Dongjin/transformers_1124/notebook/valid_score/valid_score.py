@@ -102,7 +102,7 @@ def get_valid_score(current_dir_path, predict_path):
 if __name__ == '__main__':
     work_dir_path = os.path.dirname(os.path.realpath(__file__))
     predict_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/ensemble/result'
-    predict_paths = glob(predict_dir_path + '/*valid*.csv')
+    predict_paths = glob(predict_dir_path + '/**/*valid*.csv', recursive=True)
 
     for predict_path in predict_paths:
         get_valid_score(work_dir_path, predict_path)
