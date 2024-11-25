@@ -63,6 +63,55 @@ def visualize_segmentation(image, masks, color_palette):
   
     return vis_image
 
+#def main():
+#    st.title('Segmentation 시각화')
+#    
+#    # 데이터셋 경로 설정
+#    test_data_path = '/data/ephemeral/home/data/test/DCM'
+#    
+#    # ID 폴더 선택
+#    id_folders = [f for f in os.listdir(test_data_path) if os.path.isdir(os.path.join(test_data_path, f))]
+#    selected_id = st.selectbox('ID 선택', id_folders)
+#    
+#    # 이미지 선택
+#    image_path = os.path.join(test_data_path, selected_id)
+#    images = [f for f in os.listdir(image_path) if f.endswith('.png')]
+#    selected_image = st.selectbox('이미지 선택', images)
+#    
+#    # CSV 업로드
+#    uploaded_csv = st.file_uploader("세분화 CSV 업로드", type=['csv'])   #accept_multiple_files=True
+#    
+#    if selected_image and uploaded_csv:
+#        # 이미지 읽기
+#        full_image_path = os.path.join(image_path, selected_image)
+#        image = cv2.imread(full_image_path)
+#        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#        height, width = image.shape[:2]
+#        
+#        # CSV 읽기
+#        df = pd.read_csv(uploaded_csv)
+#        
+#        # 현재 이미지에 대한 행 필터링
+#        image_df = df[df['image_name'] == selected_image]
+#        
+#        # RLE를 마스크로 디코딩
+#        masks = [
+#            decode_rle_to_mask(row['rle'], height, width) 
+#            for _, row in image_df.iterrows()
+#        ]
+#        
+#        # 색상 팔레트 생성
+#        color_palette = create_color_palette(len(masks))
+#        
+#        # 시각화
+#        visualization = visualize_segmentation(image, masks, color_palette)
+#        
+#        # 보여주기
+#        st.image(visualization)
+#        
+#        # 선택적: 클래스 이름 표시
+#        st.subheader('세분화된 클래스')
+#        st.dataframe(image_df[['class']])
 def main():
     st.title('Segmentation 시각화')
     
@@ -71,15 +120,15 @@ def main():
     
     # ID 폴더 선택
     id_folders = [f for f in os.listdir(test_data_path) if os.path.isdir(os.path.join(test_data_path, f))]
-    selected_id = st.selectbox('ID 선택', id_folders)
+    selected_id = st.selectbox('ID 선택', id_folders, key='id_selectbox')
     
     # 이미지 선택
     image_path = os.path.join(test_data_path, selected_id)
     images = [f for f in os.listdir(image_path) if f.endswith('.png')]
-    selected_image = st.selectbox('이미지 선택', images)
+    selected_image = st.selectbox('이미지 선택', images, key='image_selectbox')
     
     # CSV 업로드
-    uploaded_csv = st.file_uploader("세분화 CSV 업로드", type=['csv'])   #accept_multiple_files=True
+    uploaded_csv = st.file_uploader("세분화 CSV 업로드", type=['csv'], key='csv_uploader')
     
     if selected_image and uploaded_csv:
         # 이미지 읽기
@@ -94,24 +143,37 @@ def main():
         # 현재 이미지에 대한 행 필터링
         image_df = df[df['image_name'] == selected_image]
         
+        # 클래스 리스트 생성
+        class_list = image_df['class'].unique().tolist()
+        
+        # 사용자에게 보고 싶은 클래스 선택 옵션 제공
+        selected_classes = st.multiselect('보고 싶은 클래스 선택', class_list, default=class_list, key='class_multiselect')
+        
+        # 선택된 클래스에 대한 데이터 필터링
+        filtered_df = image_df[image_df['class'].isin(selected_classes)]
+        
         # RLE를 마스크로 디코딩
         masks = [
             decode_rle_to_mask(row['rle'], height, width) 
-            for _, row in image_df.iterrows()
+            for _, row in filtered_df.iterrows()
         ]
         
         # 색상 팔레트 생성
         color_palette = create_color_palette(len(masks))
         
         # 시각화
-        visualization = visualize_segmentation(image, masks, color_palette)
-        
-        # 보여주기
-        st.image(visualization)
+        if len(masks) > 0:
+            visualization = visualize_segmentation(image, masks, color_palette)
+            
+            # 보여주기
+            st.image(visualization)
+        else:
+            st.write("선택한 클래스에 해당하는 세분화 데이터가 없습니다.")
         
         # 선택적: 클래스 이름 표시
         st.subheader('세분화된 클래스')
-        st.dataframe(image_df[['class']])
+        st.dataframe(filtered_df[['class']])
 
 if __name__ == '__main__':
     main()
+
