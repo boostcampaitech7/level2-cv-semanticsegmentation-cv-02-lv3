@@ -165,9 +165,10 @@ class Inference:
 
 
 if __name__=='__main__':
-    model_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1122/trained_models/openmmlab/upernet-convnext-small_crop_backhand'
-    inference = Inference(model_dir_path)
-    inference.inference_and_save(mode='valid')
-    inference.inference_and_save(mode='test')
-    inference.inference_and_save(mode='train')
+    pass
+    # model_dir_path = '/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1122/trained_models/openmmlab/upernet-convnext-small_crop_backhand'
+    # inference = Inference(model_dir_path)
+    # inference.inference_and_save(mode='valid')
+    # inference.inference_and_save(mode='test')
+    # inference.inference_and_save(mode='train')
 
