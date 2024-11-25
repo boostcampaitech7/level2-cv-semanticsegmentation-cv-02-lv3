@@ -1,7 +1,5 @@
 file_path,argument,start,end
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble1.json,24/11/25 13:51:00,
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble2.json,,
-/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble3.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble4.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble5.json,,
 /data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_ensemble.py,--ensemble_path conf/ensemble/ensemble6.json,,
+/data/ephemeral/home/Dongjin/level2-cv-semanticsegmentation-cv-02-lv3/Baseline/Dongjin/transformers_1124/inference_run.py

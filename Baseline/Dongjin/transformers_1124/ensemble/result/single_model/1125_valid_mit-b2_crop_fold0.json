@@ -1,0 +1,12 @@
+{
+    "model_dir_paths": [
+        "../trained_models/nvidia/mit-b2_crop_finger_fold0",
+        "../trained_models/nvidia/mit-b2_crop_backhand_fold0",
+        "../trained_models/nvidia/mit-b2_crop_arm_fold0"
+    ],
+    "predict_paths": [
+        "../trained_models/nvidia/mit-b2_crop_finger_fold0/valid_mit-b2_crop_finger_fold0_ep_36_vdice_0.9750.csv",
+        "../trained_models/nvidia/mit-b2_crop_backhand_fold0/valid_mit-b2_crop_backhand_fold0_ep_25_vdice_0.9513.csv",
+        "../trained_models/nvidia/mit-b2_crop_arm_fold0/valid_mit-b2_crop_arm_fold0_ep_19_vdice_0.9901.csv"
+    ]
+}

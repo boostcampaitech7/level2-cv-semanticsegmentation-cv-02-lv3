@@ -7,9 +7,6 @@ dir1_paths = glob(dir_path + '/**')
 for dir1_path in dir1_paths:
     dir2_paths = glob(dir1_path + '/**')
 
-    if 'fold0' not in dir2_paths:
-        continue
-
     for dir2_path in dir2_paths:        
         print(dir2_path)
         inference = Inference(dir2_path)
