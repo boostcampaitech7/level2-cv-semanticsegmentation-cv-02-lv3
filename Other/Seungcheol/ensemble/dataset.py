@@ -38,7 +38,7 @@ CLASS2IND = {v: i for i, v in enumerate(CLASSES)}
 
 
 class XRayDataset(Dataset):
-    def __init__(self, image_root="train/DCM", label_root="train/outputs_json", is_train=True, transforms=None,split_file=None):
+    def __init__(self, image_root="image_path", label_root="label_path", is_train=True, transforms=None,split_file=None):
         self.image_root = image_root
         self.label_root = label_root
 
@@ -127,7 +127,7 @@ class XRayDataset(Dataset):
 
 
 class XRayInferenceDataset(Dataset):
-    def __init__(self,image_root="train/DCM", transforms=None):
+    def __init__(self,image_root="image_path", transforms=None):
         self.image_root=image_root
 
         pngs = {

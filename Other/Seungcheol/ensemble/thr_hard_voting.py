@@ -30,19 +30,19 @@ thr2=0.5
 thr3=0.5
 
 # 모델 리스트 정의
-model1 = AutoModelForSemanticSegmentation.from_pretrained('/data/ephemeral/home/Seungcheol/ensemble/ep_19_vdice_0.9701')
-model2 = torch.load(os.path.join("/data/ephemeral/home/Seungcheol/ensemble/hrnet2_2_batch_3_final_1024_best_model.pt"))
-model3 = torch.load(os.path.join("/data/ephemeral/home/Seungcheol/ensemble/UnetPlusPlus_tu-hrnet_w48_[1024, 1024]_batch2_fold0_best_model.pt"))
+model1 = AutoModelForSemanticSegmentation.from_pretrained('model_path1')
+model2 = torch.load(os.path.join("model_path2"))
+model3 = torch.load(os.path.join("model_path3"))
 models = [(model1,thr1), (model2,thr2), (model3,thr3)]
 
 # 테스트 이미지 경로
-image_dir='/data/ephemeral/home/data/test/DCM'
+image_dir='image_path'
 
 # 저장할 경로
-output_dir='/data/ephemeral/home/Seungcheol/ensemble/thr_hard_voting/'
+output_dir='output_path'
 
 # 저장할 이름
-output_name='hrnetv2_upernet_unet++.csv'
+output_name='output_name'
 
 
 
@@ -91,7 +91,7 @@ def test(models, data_loader, voting_threshold=2):
 
     rles = []
     filename_and_class = []
-    image_processor = AutoImageProcessor.from_pretrained('/data/ephemeral/home/Seungcheol/ensemble/ep_19_vdice_0.9701',do_rescale=False)
+    image_processor = AutoImageProcessor.from_pretrained('model_path1',do_rescale=False)
     with torch.no_grad():
         n_class = len(CLASSES)
 

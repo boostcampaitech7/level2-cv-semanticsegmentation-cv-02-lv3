@@ -26,11 +26,9 @@ def rle_encode(mask):
 
 # 1. 예측 CSV 파일 불러오기
 file_paths = [
-    "/data/ephemeral/home/Seungcheol/ensemble/hrnet2_2_batch_3_final_1024_output.csv",
-    "/data/ephemeral/home/Seungcheol/ensemble/unet++_1024.csv",
-    "/data/ephemeral/home/Seungcheol/ensemble/upernet_1024.csv",
-    "/data/ephemeral/home/Seungcheol/ensemble/unet3+.csv",
-    "/data/ephemeral/home/Seungcheol/ensemble/yolo11.csv"
+    'file_path1',
+    'file_path2',
+    'file_path3'
 ]
 
 # 2. 모든 예측 결과를 DataFrame으로 로드
@@ -68,5 +66,4 @@ for i in tqdm(range(len(decoded_masks[0])), desc="Performing Custom Voting"):
 
 # 5. 최종 결과 저장
 ensemble_df = pd.DataFrame(ensemble_results)
-ensemble_df.to_csv("/data/ephemeral/home/Seungcheol/ensemble/hard_voting/unet++_upernet_hrnetv2_1_voting.csv", index=False)
-print("Custom voting ensemble results saved to ensemble_output/unet++_upernet_hrnetv2_1_voting.csv")
+ensemble_df.to_csv("output_name", index=False)

@@ -16,20 +16,19 @@ from dataset import XRayInferenceDataset
 from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
 # 모델 리스트 정의
 
-model1 = AutoModelForSemanticSegmentation.from_pretrained('/data/ephemeral/home/Seungcheol/ensemble/ep_19_vdice_0.9701')
-model2 = torch.load(os.path.join("/data/ephemeral/home/Seungcheol/ensemble/best_model/UnetPlusPlus_tu-hrnet_w48_[1024, 1024]_batch2_fold0__hybrid2_best_model.pt"))
-model3 = torch.load(os.path.join("/data/ephemeral/home/Seungcheol/ensemble/best_model/hrnet2_2_batch_3_final_1024_best_model.pt"))
-#models = [model2]
+model1 = AutoModelForSemanticSegmentation.from_pretrained('model_path1')
+model2 = torch.load(os.path.join("model_path2"))
+model3 = torch.load(os.path.join("model_path3"))
 models=[model1,model2,model3]
 
 # 테스트 이미지 경로
-image_dir='/data/ephemeral/home/data/test/DCM'
+image_dir='image_path'
 
 # 저장할 경로
-output_dir='/data/ephemeral/home/Seungcheol/ensemble/tta/'
+output_dir='output_path'
 
 # 저장할 이름
-output_name='unet++_upernet_hrnetv2_tta.csv'
+output_name='output_name'
 
 threshold=0.5
 
@@ -83,7 +82,7 @@ def tta_flip_inference(models, data_loader, weights, thr=0.5):
 
     rles = []
     filename_and_class = []
-    image_processor = AutoImageProcessor.from_pretrained('/data/ephemeral/home/Seungcheol/ensemble/ep_19_vdice_0.9701',do_rescale=False)
+    image_processor = AutoImageProcessor.from_pretrained('image_path1',do_rescale=False)
 
     with torch.no_grad():
         for step, (images, image_names) in tqdm(enumerate(data_loader), total=len(data_loader)):
