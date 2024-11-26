@@ -103,19 +103,6 @@ train_tf = A.Compose(
                 # A.RandomBrightnessContrast(p=0.2),
                 # A.HueSaturationValue(p=0.2),
                 A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5),
-                #ToTensorV2(),
-            ])
-valid_tf = A.Resize(resize_height, resize_width)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=train_tf, split_file=split_file)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=valid_tf, split_file=split_file)
-train_tf = A.Compose(
-            [
-                A.Resize(resize_height, resize_width),
-                # A.HorizontalFlip(p=0.5),
-                # A.RandomBrightnessContrast(p=0.2),
-                # A.HueSaturationValue(p=0.2),
-                A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5),
-                #ToTensorV2(),
             ])
 valid_tf = A.Resize(resize_height, resize_width)
 train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=train_tf, split_file=split_file)
@@ -139,14 +126,6 @@ valid_loader = DataLoader(
     drop_last=False
 )
 
-# Train 데이터 로딩 진행 표시
-for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc="Loading Train Data")):
-    pass  # 출력 없이 데이터 로드만 진행
-
-# Valid 데이터 로딩 진행 표시
-for batch_idx, (images, labels) in enumerate(tqdm(valid_loader, desc="Loading Validation Data")):
-    pass
-    
 # Train 데이터 로딩 진행 표시
 for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc="Loading Train Data")):
     pass  # 출력 없이 데이터 로드만 진행
@@ -181,6 +160,3 @@ set_seed()
 train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name, args.seg_model, args.resize, args.batch_size, args.fold)
 
 wandb.finish()
-
-
-# python train.py
