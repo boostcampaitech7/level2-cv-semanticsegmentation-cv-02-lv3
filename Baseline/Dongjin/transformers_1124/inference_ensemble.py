@@ -254,6 +254,6 @@ if __name__=='__main__':
     rel_ensemble_conf_path = args.ensemble_path
     conf = load_ensemble_conf(work_dir_path=work_dir_path, rel_ensemble_conf_path=rel_ensemble_conf_path)
 
-    modes = ['test']
+    modes = ['valid']
     for mode in modes:
         ensemble_and_save(conf, mode)
