@@ -1,0 +1,12 @@
+{
+    "model_dir_paths": [
+        "../trained_models/openmmlab/upernet-convnext-small_crop_finger_fold1",
+        "../trained_models/openmmlab/upernet-convnext-small_crop_backhand_fold1",
+        "../trained_models/openmmlab/upernet-convnext-small_crop_arm_fold1"
+    ],
+    "predict_paths": [
+        "../trained_models/openmmlab/upernet-convnext-small_crop_finger_fold1/valid_upernet-convnext-small_crop_finger_fold1_ep_38_vdice_0.9781.csv",
+        "../trained_models/openmmlab/upernet-convnext-small_crop_backhand_fold1/valid_upernet-convnext-small_crop_backhand_fold1_ep_25_vdice_0.9482.csv",
+        "../trained_models/openmmlab/upernet-convnext-small_crop_arm_fold1/valid_upernet-convnext-small_crop_arm_fold1_ep_16_vdice_0.9906.csv"
+    ]
+}
