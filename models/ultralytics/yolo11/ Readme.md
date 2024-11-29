@@ -1,25 +1,19 @@
 # YOLO11: 모델 실행 방법
 
-이 문서는 YOLO11 모델을 설치하고 실행하는 방법을 안내합니다.
-
----
-
 ### **1. 필수 패키지 설치**
 ultralytics 라이브러리 실행을 위한 패키지를 설치합니다.
 ```bash
 pip install ultralytics
 ```
 
-설치 후에 아래 에러가 발생한다면<br>
-ImportError: libGL.so.1: cannot open shared object file: No such file or directory<br>
+설치 후에 다음 에러가 발생한다면 : _ImportError: libGL.so.1: cannot open shared object file: No such file or directory_<br>
 **libgl1** 패키지를 설치해주세요
 ```bash
 apt-get install libgl1
 ```
 
-libgl1 설치 후에도 아래 에러가 발생한다면 
-ImportError: libgthread-2.0.so.0: cannot open shared object file: No such file or directory
-추가로 libglib2.0-0를 설치해주세요
+libgl1 설치 후에 다음 에러가 발생한다면 : _ImportError: libgthread-2.0.so.0: cannot open shared object file: No such file or directory_<br>
+추가로 **libglib2.0-0**를 설치해주세요
 ```bash
 apt-get install libglib2.0-0
 
