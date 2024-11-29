@@ -4,6 +4,7 @@ wandb/
 .png
 *.pt
 *.pth
+*.csv
 checkpoints/
 output/
 logs/
