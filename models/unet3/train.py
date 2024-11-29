@@ -70,7 +70,7 @@ if __name__ == "__main__":
         type=str,
         nargs="*",
         default=[],
-        choices=['grid', 'contrast', 'clahe'],
+        choices=['','grid', 'contrast', 'clahe'],
         help='Augmentations to apply during training (e.g., grid, contrast, clahe)'
     )
     
