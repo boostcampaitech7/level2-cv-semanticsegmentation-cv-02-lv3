@@ -16,13 +16,13 @@ if __name__ == '__main__':
     # exp1.json 파일에서 변경할 조건(예: train_json_name, valid_json_name)을 지정하여 실험을 수행할 수 있습니다.
     # train.py의 결과로 저장된 weight는 inference.py를 이용하여 train, valid, test 예측 결과를 얻을 수 있습니다. 
     
-    work_dir_path = os.path.dirname(os.path.realpath(__file__)) # train.py의 디렉토리
 
     # exp_path 불러오기
     args = parse_args() 
     exp_path = args.exp_path
 
     # 실험조건 불러오기
+    work_dir_path = os.path.dirname(os.path.realpath(__file__)) # train.py의 디렉토리
     conf = utils.load_conf(work_dir_path=work_dir_path, rel_exp_path=exp_path) 
     conf['work_dir_path'] = work_dir_path
     conf['run_name'] = conf['run_name_format'].format(**conf)
@@ -32,9 +32,11 @@ if __name__ == '__main__':
     conf['model_dir_path'] = utils.renew_if_path_exist(conf['model_dir_path'])
     conf['run_name'] = os.path.basename(conf['model_dir_path'])
 
-    # if conf['debug'] == False:
-    #     utils.load_wandb(conf) # wandb 설정
+    # wandb 설정
+    if conf['debug'] == False:
+        utils.load_wandb(conf) 
 
+    # 사전에 학습된 결과 폴더가 지정되었으면, weight 폴더 경로로 재지정
     if conf['trained_path'] is not None:
         conf['trained_path'] = utils.get_saved_model_dir_path(conf['trained_path'])
 

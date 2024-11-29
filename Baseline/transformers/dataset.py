@@ -6,7 +6,7 @@ import os
 import utils
 import albumentations as A
 
-
+# xray class 지정
 def get_xray_classes(crop_type=None):
     classes = [
         'finger-1', 'finger-2', 'finger-3', 'finger-4', 'finger-5',
@@ -37,6 +37,7 @@ def get_xray_classes(crop_type=None):
     else:
         raise(Exception(f"{crop_type} is not valid"))
 
+    # crop 정보로 class 수정
     classes = np.array(classes)[idx].tolist()
     class2idx = {v: i for i, v in enumerate(classes)}
     idx2class = {v: k for k, v in class2idx.items()}
@@ -71,9 +72,9 @@ class XRayDataset(Dataset):
         self.data_dir_path = data_dir_path
         self.data_info_path = data_info_path
         self.debug = debug
-
         self.image_paths, self.anns_paths = self.get_image_anns_paths() # image와 annotation 파일 경로 불러오기
-        if debug:
+        
+        if debug: # debug 모드
             self.image_paths = self.image_paths[0:16]
             self.anns_paths = self.anns_paths[0:16]
         
@@ -104,7 +105,7 @@ class XRayDataset(Dataset):
 
         # 상대경로를 절대경로로 변환
         image_paths = utils.combine_paths(f'{self.data_dir_path}/{base}/DCM', rel_image_paths)
-        if rel_anns_paths is not None:
+        if rel_anns_paths is not None: # rel_anns_paths가 존재하면
             anns_paths = utils.combine_paths(f'{self.data_dir_path}/{base}/outputs_json', rel_anns_paths)
 
         return image_paths, anns_paths
@@ -119,7 +120,7 @@ class XRayDataset(Dataset):
         result = None
 
         # annotation paths가 존재하면 
-        # loss 계산 / evaluation에서 사용할 labels(mask) 생성
+        # loss 계산 및 evaluation에서 사용할 labels(mask) 생성
         if self.anns_paths is not None:
             label = self.load_label(item, image.shape)
 
@@ -146,25 +147,25 @@ class XRayDataset(Dataset):
             label = result['mask']
             result['labels'] = label
             del result['mask']
-            
 
         # image와 label 채널 순서 변경 (HxWxC -> CxHxW)
         image = image.transpose(2, 0, 1)
         if label is not None:
             label = label.transpose(2, 0, 1)
 
-        if self.image_processor is not None: # image_processor가 정의되었으면
-            if label is not None: # label이 정의되었으면
+        if self.image_processor is not None: # image_processor가 정의됨
+            if label is not None: # label이 정의됨
                 result = self.image_processor(image, label) 
                 result['labels'] = np.stack(result['labels'])
                 result['labels'] = torch.from_numpy(result['labels']).float()
-            else: # label이 정의되지 않았으면
+            else: # label이 정의되지 않음
                 result = self.image_processor(image)
 
-            # pixel_value torch로 저장
+            # pixel_value torch로 변환
             result['pixel_values'] = result['pixel_values'][0]
             result['pixel_values'] = torch.from_numpy(result['pixel_values']).float()
         
+        # 결과 반환
         if result is None:
             result = {'image': image, 'labels': label}
         result['crop'] = crop_coodinate
@@ -173,6 +174,7 @@ class XRayDataset(Dataset):
     
 
     def load_label(self, item, image_shape):
+        # anns 정보로 label(mask) 생성 및 반환
         anns_path = self.anns_paths[item]
         anns = utils.read_json(anns_path)['annotations']
 
@@ -180,9 +182,11 @@ class XRayDataset(Dataset):
         label_shape = tuple(image_shape[:2]) + (self.num_class, )
         label = np.zeros(label_shape, dtype=np.uint8)
 
-        # 클래스 별로 처리
+        # 클래스 별 처리
         for ann in anns:
             class_name = ann["label"]
+            
+            # dataset에서 다루는 class가 아니면 skip
             if class_name not in self.class2idx:
                 continue
 
@@ -202,9 +206,8 @@ class XRayDataset(Dataset):
     
 
 if __name__=='__main__':
+    # train_dataset 설정 예시
     from transformers import AutoImageProcessor
-    import matplotlib.pyplot as plt
-
     work_dir_path = os.path.dirname(os.path.realpath(__file__)) # train.py의 디렉토리
     conf = utils.load_conf(work_dir_path=work_dir_path) 
     
