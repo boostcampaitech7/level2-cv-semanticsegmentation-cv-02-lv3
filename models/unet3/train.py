@@ -48,13 +48,15 @@ if __name__ == "__main__":
     parser.add_argument('--label_root',type=str,default='/data/ephemeral/home/data/train/outputs_json',help='label root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='unet+++', help='Name of the segmentation model')
-    
+    parser.add_argument('--model_class', type=str, default='UNet_3Plus', 
+                        choices=['UNet_3Plus', 'UNet_3Plus_DeepSup', 'UNet_3Plus_DeepSup_CGM'], 
+                        help='Model class to use')
     
     args = parser.parse_args()
 
-    load_dotenv()
-    wandb_api_key = os.getenv('WANDB_API_KEY')
-    wandb.login(key=wandb_api_key)
+    #load_dotenv()
+    #wandb_api_key = os.getenv('WANDB_API_KEY')
+    #wandb.login(key=wandb_api_key)
 
     # wandb 초기화
     #wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
@@ -113,7 +115,14 @@ valid_loader = DataLoader(
 
 # model
 # 입력 채널: 3 (RGB 이미지), 출력 클래스 수: 29 (다중 클래스 분할)
-model = UNet_3Plus(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+if args.model_class == 'UNet_3Plus':
+    model = UNet_3Plus(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+elif args.model_class == 'UNet_3Plus_DeepSup':
+    model = UNet_3Plus_DeepSup(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+elif args.model_class == 'UNet_3Plus_DeepSup_CGM':
+    model = UNet_3Plus_DeepSup_CGM(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+else:
+    raise ValueError(f"Unsupported model class: {args.model_class}")
 
 # Loss function
 criterion = nn.BCEWithLogitsLoss()
