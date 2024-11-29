@@ -15,6 +15,7 @@ LOSS_FUNCTION="bce+dice"        # 손실 함수 선택 (bce, bce+iou+ssim, focal
 OPTIMIZER="adam"                # 옵티마이저 선택 (adam, rmsprop)
 CLASS_WEIGHTS=${1:-3}           # 사용자 입력 (기본값: 3)
 IMAGE_SIZE=${2:-512}            # 기본값 512
+AUGMENTATIONS=${3:-""}          # 기본 augmentation 없음
 
 # Run training
 python train.py \
@@ -32,4 +33,4 @@ python train.py \
     --optimizer $OPTIMIZER \
     --class_weights $CLASS_WEIGHTS \
     --image_size $IMAGE_SIZE \
-
+    --augmentations "$AUGMENTATIONS"

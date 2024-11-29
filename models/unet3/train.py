@@ -65,6 +65,14 @@ if __name__ == "__main__":
     parser.add_argument('--image_size', type=int, default=512, 
                         choices=[448, 512, 616, 768, 1024], 
                         help='Image size (default: 512)')
+    parser.add_argument(
+        '--augmentations',
+        type=str,
+        nargs="*",
+        default=[],
+        choices=['grid', 'contrast', 'clahe'],
+        help='Augmentations to apply during training (e.g., grid, contrast, clahe)'
+    )
     
     args = parser.parse_args()
 
@@ -109,9 +117,24 @@ def set_seed():
 split_file = args.json_dir+f'/fold_{args.fold}.json'
 
 # dataset
-tf = A.Resize(args.image_size, args.image_size)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf, split_file=split_file)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf, split_file=split_file)
+augmentations = []                                               # augmentation 조합 넣을 리스트
+augmentations.append(A.Resize(args.image_size, args.image_size)) # Resize는 항상 추가
+if 'grid' in args.augmentations:
+    augmentations.append(A.GridDistortion(num_steps=5, distort_limit=0.2, p=0.5))
+if 'contraast' in args.augmentations:
+    augmentations.append(A.RandomBrightnessContrast(brightness_limit=0, contrast_limit=(-0.2, 0.5), p=0.5))
+if 'clahe' in args.augmentations:
+    augmentations.append(A.CLAHE(clip_limit=(1, 2), p=0.7))
+
+# train transform (augmentation 동적으로 조합)
+tf_train = A.Compose(augmentations)
+
+# valid transform (기본은 Resize만 적용)
+tf_valid = A.Resize(args.image_size, args.image_size)
+
+
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf_train, split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf_valid, split_file=split_file)
 
 
 # dataloader
