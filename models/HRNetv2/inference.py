@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='HRNetv2', help='model name')
     parser.add_argument('--batch_size',type=int,default=2,help='batch_size')
-    parser.add_argument('--image_resize',type=int,default=512,help='image resize')
+    parser.add_argument('--image_resize',type=int,default=1024,help='image resize')
     
     
     args = parser.parse_args()
