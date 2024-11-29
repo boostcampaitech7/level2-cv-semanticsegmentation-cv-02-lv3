@@ -48,12 +48,14 @@ if __name__ == "__main__":
     parser.add_argument('--label_root',type=str,default='/data/ephemeral/home/data/train/outputs_json',help='label root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='unet+++', help='Name of the segmentation model')
+    parser.add_argument('--json_dir', type=str, default='../splits', help='train_valid_split_dir')
+    parser.add_argument('--fold', type=int, default=0, help='split_k_fold_0')
     parser.add_argument('--model_class', type=str, default='UNet_3Plus', 
                         choices=['UNet_3Plus', 'UNet_3Plus_DeepSup', 'UNet_3Plus_DeepSup_CGM'], 
                         help='Model class to use')
     parser.add_argument('--loss_function', type=str, default='bce', 
-                        choices=['bce', 'combined'], 
-                        help='Loss function to use: bce or combined')
+                        choices=['bce', 'bce+iou+ssim', 'focal+iou+ssim'], 
+                        help='Loss function to use: bce, bce+iou+ssim, or focal+iou+ssim')
     parser.add_argument('--optimizer', type=str, default='adam', 
                         choices=['adam', 'rmsprop'], 
                         help='Optimizer to use: adam or rmsprop')
@@ -65,13 +67,13 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
-       "epochs": args.epochs,
-       "learning_rate": args.lr,
-       "batch_size": args.batch_size,
-       "valid_batch_size": args.valid_batch_size,
-       "model_name": args.model_name
-    })
+    #wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
+    #    "epochs": args.epochs,
+    #    "learning_rate": args.lr,
+    #    "batch_size": args.batch_size,
+    #    "valid_batch_size": args.valid_batch_size,
+    #    "model_name": args.model_name
+    #})
 
 
 if not os.path.exists(args.saved_dir):                                                           
@@ -97,10 +99,14 @@ def set_seed():
     np.random.seed(RANDOM_SEED)
     random.seed(RANDOM_SEED)
 
+# json 파일 경로 지정(수정)
+split_file = args.json_dir+f'/fold_{args.fold}.json'
+
 # dataset
 tf = A.Resize(512, 512)
-train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf)
-valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf)
+train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf, split_file=split_file)
+valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf, split_file=split_file)
+
 
 # dataloader
 train_loader = DataLoader(
@@ -134,8 +140,10 @@ else:
 # Loss function 선택
 if args.loss_function == 'bce':
     criterion = nn.BCEWithLogitsLoss()
-elif args.loss_function == 'combined':
-    criterion = combined_loss_with_dynamic_weights
+elif args.loss_function == 'bce+iou+ssim':
+    criterion = BCEWithIoUAndSSIM()
+elif args.loss_function == 'focal+iou+ssim':
+    criterion = FocalLossWithIoUAndSSIM()
 else:
     raise ValueError(f"Unsupported loss function: {args.loss_function}")
 
@@ -153,4 +161,4 @@ set_seed()
 
 train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
 
-wandb.finish()
+#wandb.finish()

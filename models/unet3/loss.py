@@ -2,32 +2,38 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from math import exp
+import numpy as np
 
 # BCE Loss
 def BCE_loss(pred, label):
-    pred = torch.sigmoid(pred)  # sigmoid 추가
-    bce_loss = nn.BCELoss(reduction='mean')  # BCELoss 정의
+    bce_loss = nn.BCEWithLogitsLoss(reduction='mean')  # Sigmoid 포함
     bce_out = bce_loss(pred, label)
-    #print("bce_loss:", bce_out.item())  # detach().item() 대신 item() 사용
     return bce_out
 
-def focal_loss(y_pred, label):
-    """
-    Focal loss
-    """
-    gamma = 2.
-    alpha = 4.
-    epsilon = 1.e-9
-    
+
+def focal_loss(y_pred, label, gamma=2.0, alpha=4.0, epsilon=1e-9):
     label = label.float()
-    y_pred = y_pred.float()
-    
-    model_out = y_pred + epsilon
-    ce = label * -torch.log(model_out)
-    weight = label * torch.pow(1 - model_out, gamma)
+    y_pred = torch.sigmoid(y_pred)  # Focal Loss에도 Sigmoid 적용
+    ce = -label * torch.log(y_pred + epsilon)  # Cross-Entropy
+    weight = (1 - y_pred) ** gamma  # 가중치 계산
     fl = alpha * weight * ce
-    reduced_fl = torch.max(fl, dim=1)[0]
-    return torch.mean(reduced_fl)
+    return fl.mean()  # 샘플별 손실 평균
+
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=0.7, gamma=2.0):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, pred, target):
+        pred = torch.sigmoid(pred)
+        pt = target * pred + (1 - target) * (1 - pred)  # pt = p if target = 1 else (1-p)
+        focal_weight = self.alpha * (1 - pt) ** self.gamma
+        loss = -focal_weight * torch.log(pt + 1e-6)  # Prevent log(0)
+        return loss.mean()
+
+
 
 # IoU Loss 계산 함수
 def _iou(pred, target, size_average=True):
@@ -172,14 +178,44 @@ def dice_loss(pred, label, smooth=1.0):
     dice_loss = 1.0 - dice_score  # Dice Coefficient를 1에서 뺌 (Loss)
     return torch.mean(dice_loss)
 
+
+class DiceLoss(nn.Module):
+    def __init__(self, smooth=1.0):
+        super(DiceLoss, self).__init__()
+        self.smooth = smooth
+
+    def forward(self, pred, target):
+        pred = torch.sigmoid(pred)
+        intersection = torch.sum(pred * target, dim=(2, 3))
+        union = torch.sum(pred, dim=(2, 3)) + torch.sum(target, dim=(2, 3))
+        dice_score = (2.0 * intersection + self.smooth) / (union + self.smooth)
+        return 1.0 - dice_score.mean()
+
+
+class TverskyLoss(nn.Module):
+    def __init__(self, alpha=0.5, beta=0.5, smooth=1.0):
+        super(TverskyLoss, self).__init__()
+        self.alpha = alpha
+        self.beta = beta
+        self.smooth = smooth
+
+    def forward(self, pred, target):
+        pred = torch.sigmoid(pred)
+        tp = torch.sum(pred * target, dim=(2, 3))
+        fp = torch.sum(pred * (1 - target), dim=(2, 3))
+        fn = torch.sum((1 - pred) * target, dim=(2, 3))
+        tversky_score = (tp + self.smooth) / (tp + self.alpha * fp + self.beta * fn + self.smooth)
+        return 1.0 - tversky_score.mean()
+
+
+
 ######결합#############3
 
 # Dynamic weights 계산
 def dynamic_weights(losses, epsilon=1e-6):
-    losses = torch.tensor(losses, device='cpu')  # CPU에서 동작
+    losses = np.array(losses)  # numpy로 처리
     weights = 1 / (losses + epsilon)
-    weights = weights / torch.sum(weights)
-    return weights
+    return weights / weights.sum()
 
 # BCE + iou + mssim
 def combined_loss_with_dynamic_weights(pred, label):
@@ -195,6 +231,49 @@ def combined_loss_with_dynamic_weights(pred, label):
     losses = [bce.item(), msssim.item(), iou.item()]
     weights = dynamic_weights(losses)
 
+    #print(f"pred shape: {pred.shape}, label shape: {label.shape}")
+    #print(f"pred range: {pred.min().item()} to {pred.max().item()}, label range: {label.min().item()} to {label.max().item()}")
+    #print(f"Weights: {weights.tolist()}")
+
     # Combined Loss
     total_loss = weights[0] * bce + weights[1] * msssim + weights[2] * iou
     return total_loss
+
+# BCE + IoU + MSSSIM Loss
+class BCEWithIoUAndSSIM(nn.Module):
+    def __init__(self):
+        super(BCEWithIoUAndSSIM, self).__init__()
+        self.bce = nn.BCEWithLogitsLoss()
+
+    def forward(self, pred, target):
+        bce = self.bce(pred, target)
+        iou = IOU_loss(torch.sigmoid(pred), target)
+        msssim = msssim_loss(torch.sigmoid(pred), target)
+
+        # 동적 가중치 계산
+        losses = [bce.item(), iou.item(), msssim.item()]
+        weights = dynamic_weights(losses)
+
+        # 최종 손실 계산
+        total_loss = weights[0] * bce + weights[1] * iou + weights[2] * msssim
+        return total_loss
+
+# Focal + IoU + MSSSIM Loss
+class FocalLossWithIoUAndSSIM(nn.Module):
+    def __init__(self, alpha=0.25, gamma=2.0):
+        super(FocalLossWithIoUAndSSIM, self).__init__()
+        self.focal = FocalLoss(alpha, gamma)
+
+    def forward(self, pred, target):
+        focal = self.focal(pred, target)
+        iou = IOU_loss(torch.sigmoid(pred), target)
+        msssim = msssim_loss(torch.sigmoid(pred), target)
+
+        # 동적 가중치 계산
+        losses = [focal.item(), iou.item(), msssim.item()]
+        weights = dynamic_weights(losses)
+
+        # 최종 손실 계산
+        total_loss = weights[0] * focal + weights[1] * iou + weights[2] * msssim
+        return total_loss
+

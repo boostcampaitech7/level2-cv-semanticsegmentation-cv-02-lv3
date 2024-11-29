@@ -36,8 +36,9 @@ CLASSES = [
 CLASS2IND = {v: i for i, v in enumerate(CLASSES)}
 
 
+
 class XRayDataset(Dataset):
-    def __init__(self, image_root="train/DCM", label_root="train/outputs_json", is_train=True, transforms=None):
+    def __init__(self, image_root="train/DCM", label_root="train/outputs_json", is_train=True, transforms=None,split_file=None):
         self.image_root = image_root
         self.label_root = label_root
 
@@ -58,45 +59,21 @@ class XRayDataset(Dataset):
         pngs = sorted(pngs)
         jsons = sorted(jsons)
 
-        _filenames = np.array(pngs)
-        _labelnames = np.array(jsons)
 
-
-        # split train-valid
-        # 한 폴더 안에 한 인물의 양손에 대한 `.dcm` 파일이 존재하기 때문에
-        # 폴더 이름을 그룹으로 해서 GroupKFold를 수행함
-        # 동일 인물의 손이 train, valid에 따로 들어가는 것을 방지
-        groups = [os.path.dirname(fname) for fname in _filenames]
-        
-        # dummy label
-        ys = [0 for fname in _filenames]
-        
-        # 전체 데이터의 20%를 validation data로 쓰기 위해 `n_splits`를
-        # 5으로 설정하여 KFold를 수행함
-        gkf = GroupKFold(n_splits=5)
-        
-        filenames = []
-        labelnames = []
-        for i, (x, y) in enumerate(gkf.split(_filenames, ys, groups)):
-            if is_train:
-                # 0번을 validation dataset으로 사용함
-                if i == 0:
-                    continue
-                    
-                filenames += list(_filenames[y])
-                labelnames += list(_labelnames[y])
+        if split_file:
+            with open(split_file, 'r') as f:
+                split_data = json.load(f)
             
+            if is_train:
+                self.filenames = split_data['train_filenames']
+                self.labelnames = split_data['train_labelnames']
             else:
-                filenames = list(_filenames[y])
-                labelnames = list(_labelnames[y])
-                
-                # skip i > 0
-                break
+                self.filenames = split_data['valid_filenames']
+                self.labelnames = split_data['valid_labelnames']
         
-        self.filenames = filenames
-        self.labelnames = labelnames
         self.is_train = is_train
         self.transforms = transforms
+
     
     def __len__(self):
         return len(self.filenames)
@@ -111,22 +88,22 @@ class XRayDataset(Dataset):
         label_name = self.labelnames[item]
         label_path = os.path.join(self.label_root, label_name)
         
-        # (H, W, NC) 모양의 label을 생성
+        # (H, W, NC) 모양의 label을 생성합니다.
         label_shape = tuple(image.shape[:2]) + (len(CLASSES), )
         label = np.zeros(label_shape, dtype=np.uint8)
         
-        # label 파일을 읽음
+        # label 파일을 읽습니다.
         with open(label_path, "r") as f:
             annotations = json.load(f)
         annotations = annotations["annotations"]
         
-        # 클래스 별로 처리
+        # 클래스 별로 처리합니다.
         for ann in annotations:
             c = ann["label"]
             class_ind = CLASS2IND[c]
             points = np.array(ann["points"])
             
-            # polygon 포맷을 dense한 mask 포맷으로 바꿈
+            # polygon 포맷을 dense한 mask 포맷으로 바꿉니다.
             class_label = np.zeros(image.shape[:2], dtype=np.uint8)
             cv2.fillPoly(class_label, [points], 1)
             label[..., class_ind] = class_label
@@ -138,14 +115,16 @@ class XRayDataset(Dataset):
             image = result["image"]
             label = result["mask"] if self.is_train else label
 
-    
-        image = image.transpose(2, 0, 1)    # channel first 포맷으로 변경함
+        # to tenser will be done later
+        image = image.transpose(2, 0, 1)    # channel first 포맷으로 변경합니다.
         label = label.transpose(2, 0, 1)
         
         image = torch.from_numpy(image).float()
         label = torch.from_numpy(label).float()
             
         return image, label
+    
+
 
 class XRayInferenceDataset(Dataset):
     def __init__(self,image_root="train/DCM", transforms=None):
@@ -179,6 +158,7 @@ class XRayInferenceDataset(Dataset):
             result = self.transforms(**inputs)
             image = result["image"]
 
+        # to tenser will be done later
         image = image.transpose(2, 0, 1)  
         
         image = torch.from_numpy(image).float()

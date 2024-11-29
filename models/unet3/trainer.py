@@ -106,9 +106,6 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
          
             model = model.cuda()
             outputs = model(images)
-            temp = outputs.detach().clone()  # 계산 그래프에서 분리된 텐서를 복사
-            temp = torch.sigmoid(temp)  # sigmoid 함수 적용
-            #print(temp.sum())
             
             # loss를 계산합니다.
             loss = criterion(outputs, masks)
@@ -118,7 +115,7 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
 
             total_loss += loss
 
-            # step 주기에 따라 loss를 출력합니다.
+            # step 주기에 따라 loss를 출력
             if (step + 1) % 25 == 0:
                 print(
                     f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | '
@@ -129,13 +126,10 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
 
         total_loss /= len(data_loader)
 
-        # # wandb에 현재 loss 로깅
-        # wandb.log({"Train Loss": round(loss.item(), 4)})
-        # validation 주기에 따라 loss를 출력하고 best model을 저장합니다.
+    
+        # validation 주기에 따라 loss를 출력하고 best model을 저장
         if (epoch + 1) % val_every == 0:
             avg_dice, dice_dict= validation(epoch + 1, model, val_loader, criterion)
-            # wandb에 검증 결과 로깅
-            #wandb.log({"Validation Dice": dice, "epoch": epoch + 1})
             if best_dice < avg_dice:
                 print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {avg_dice:.4f}")
                 print(f"Save model in {saved_dir}")
@@ -150,7 +144,7 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
         wandb.log(log)
 
         
-# mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 합니다.
+# mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 
 def encode_mask_to_rle(mask):
     '''
     mask: numpy array binary mask
