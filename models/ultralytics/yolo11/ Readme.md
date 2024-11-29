@@ -5,14 +5,14 @@
 ---
 
 ### **1. 필수 패키지 설치**
-YOLO11 실행을 위해 필요한 패키지를 설치합니다.
+ultralytics 라이브러리 실행을 위한 패키지를 설치합니다.
 ```bash
 pip install ultralytics
 ```
 
-설치 후에 아래 에러가 발생한다면
-ImportError: libGL.so.1: cannot open shared object file: No such file or directory
-libgl1를 설치해주세요
+설치 후에 아래 에러가 발생한다면<br>
+ImportError: libGL.so.1: cannot open shared object file: No such file or directory<br>
+**libgl1** 패키지를 설치해주세요
 ```bash
 apt-get install libgl1
 ```
