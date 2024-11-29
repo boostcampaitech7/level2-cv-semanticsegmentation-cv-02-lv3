@@ -30,11 +30,13 @@ from dataset import XRayDataset
 
 from trainer import *
 import wandb
-from model import *
+#from model.base import *
 
 import pdb
 
 from loss import *
+import importlib
+import inspect
 
 
 if __name__ == "__main__":
@@ -50,9 +52,23 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', type=str, default='unet+++', help='Name of the segmentation model')
     parser.add_argument('--json_dir', type=str, default='../splits', help='train_valid_split_dir')
     parser.add_argument('--fold', type=int, default=0, help='split_k_fold_0')
-    parser.add_argument('--model_class', type=str, default='UNet_3Plus', 
-                        choices=['UNet_3Plus', 'UNet_3Plus_DeepSup', 'UNet_3Plus_DeepSup_CGM'], 
-                        help='Model class to use')
+    parser.add_argument('--model_file', type=str, default='base', 
+                        choices=['base', 'resnext', 'swin_t'], 
+                        help='Model file to import from (default: base)')
+    # 동적으로 모델 클래스 가져오기
+    args, unknown = parser.parse_known_args()
+    try:
+        model_module = importlib.import_module(f"model.{args.model_file}")
+        model_classes = [
+            name for name, obj in inspect.getmembers(model_module, inspect.isclass)
+            if obj.__module__ == model_module.__name__
+        ]
+    except ImportError as e:
+        raise ImportError(f"Failed to import module '{args.model_file}': {e}")
+
+    parser.add_argument('--model_class', type=str, default=model_classes[0], choices=model_classes,
+                        help=f"Model class to use (choose from: {model_classes})")
+
     parser.add_argument('--loss_function', type=str, default='bce', 
                         choices=['bce', 'bce+iou+ssim', 'focal+iou+ssim', 'tversky', 'bce+focal', 'bce+dice'], 
                         help='Loss function to use')
@@ -73,21 +89,32 @@ if __name__ == "__main__":
         choices=['','grid', 'contrast', 'clahe'],
         help='Augmentations to apply during training (e.g., grid, contrast, clahe)'
     )
-    
+
     args = parser.parse_args()
+
+    # 동적으로 모델 파일과 클래스 불러오기
+    try:
+        model_module = importlib.import_module(f"model.{args.model_file}")  # 예: model.resnext
+        ModelClass = getattr(model_module, args.model_class)  # 예: UNet_3Plus
+    except ImportError as e:
+        raise ImportError(f"Failed to import module '{args.model_file}': {e}")
+    except AttributeError:
+        raise AttributeError(f"Model class '{args.model_class}' not found in '{args.model_file}'")
+
+    
 
     load_dotenv()
     wandb_api_key = os.getenv('WANDB_API_KEY')
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
-       "epochs": args.epochs,
-       "learning_rate": args.lr,
-       "batch_size": args.batch_size,
-       "valid_batch_size": args.valid_batch_size,
-       "model_name": args.model_name
-    })
+    #wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
+    #    "epochs": args.epochs,
+    #    "learning_rate": args.lr,
+    #    "batch_size": args.batch_size,
+    #    "valid_batch_size": args.valid_batch_size,
+    #    "model_name": args.model_name
+    #})
 
 
 if not os.path.exists(args.saved_dir):                                                           
@@ -157,14 +184,16 @@ valid_loader = DataLoader(
 # model
 # 입력 채널: 3 (RGB 이미지), 출력 클래스 수: 29 (다중 클래스 분할)
 # Model selection based on `--model_class`
-if args.model_class == 'UNet_3Plus':
-    model = UNet_3Plus(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
-elif args.model_class == 'UNet_3Plus_DeepSup':
-    model = UNet_3Plus_DeepSup(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
-elif args.model_class == 'UNet_3Plus_DeepSup_CGM':
-    model = UNet_3Plus_DeepSup_CGM(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
-else:
-    raise ValueError(f"Unsupported model class: {args.model_class}")
+# if args.model_class == 'UNet_3Plus':
+#     model = UNet_3Plus(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+# elif args.model_class == 'UNet_3Plus_DeepSup':
+#     model = UNet_3Plus_DeepSup(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+# elif args.model_class == 'UNet_3Plus_DeepSup_CGM':
+#     model = UNet_3Plus_DeepSup_CGM(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
+# else:
+#     raise ValueError(f"Unsupported model class: {args.model_class}")
+# Model initialization
+model = ModelClass(in_channels=3, n_classes=29)
 
 #weights 선택 (1차, 2차, 3차 가중치)
 #1,2는 dice 점수 기반, 3차는 넓이 기반
@@ -217,4 +246,4 @@ set_seed()
 
 train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
 
-wandb.finish()
+#wandb.finish()

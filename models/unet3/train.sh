@@ -9,13 +9,13 @@ VAL_EVERY=1                    # Validation 주기
 IMAGE_ROOT="/data/ephemeral/home/data/train/DCM"     # 이미지 데이터 경로
 LABEL_ROOT="/data/ephemeral/home/data/train/outputs_json"     # 레이블 데이터 경로
 SAVED_DIR="checkpoints"         # 모델 체크포인트 저장 경로
-MODEL_NAME="unet+++"            # 모델 이름
-MODEL_CLASS="UNet_3Plus"        # 사용할 모델 클래스
-LOSS_FUNCTION="bce+dice"        # 손실 함수 선택 (bce, bce+iou+ssim, focal+iou+ssim)
-OPTIMIZER="adam"                # 옵티마이저 선택 (adam, rmsprop)
-CLASS_WEIGHTS=${1:-3}           # 사용자 입력 (기본값: 3)
-IMAGE_SIZE=${2:-512}            # 기본값 512
-AUGMENTATIONS=${3:-""}          # 기본 augmentation 없음
+MODEL_FILE=${1:-"resnext"}              # model 파일 선택 (base, resnext, swin_t)
+MODEL_CLASS=${2:-"UNet3Plus_ResNeXt101"} # model 클래스 선택
+LOSS_FUNCTION="bce+dice"        # 손실 함수 선택
+OPTIMIZER="adam"                # 옵티마이저 선택
+CLASS_WEIGHTS=${3:-3}           # 기본 클래스 가중치 (3)
+IMAGE_SIZE=${4:-512}            # 기본 이미지 크기
+AUGMENTATIONS=${5:-""}          # 기본 augmentations 없음
 
 # Run training
 python train.py \
@@ -27,7 +27,7 @@ python train.py \
     --image_root $IMAGE_ROOT \
     --label_root $LABEL_ROOT \
     --saved_dir $SAVED_DIR \
-    --model_name $MODEL_NAME \
+    --model_file $MODEL_FILE \
     --model_class $MODEL_CLASS \
     --loss_function $LOSS_FUNCTION \
     --optimizer $OPTIMIZER \
