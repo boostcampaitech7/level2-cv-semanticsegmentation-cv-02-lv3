@@ -26,7 +26,7 @@ Our project employs the [Segmentation Models PyTorch (SMP)](https://github.com/q
   - **DeepLabv3+**: Atrous convolution-based architecture for robust multi-scale segmentation.
 - **Backbones**: (Specify backbones, e.g., ResNet34, EfficientNet-B0, or others used for each model).
 - **Pretrained Weights**: Both models use ImageNet pretrained weights for backbones to enhance performance.
-- **Loss Function**: (Specify, e.g., Dice Loss, Cross-Entropy Loss, or a combination).
+- **Loss Function**: (Specify, e.g., BCEWithLogitsLoss, HybridLoss(BCE+Focal loss), BCEDiceLoss(BCE+Dice loss)).
 - **Optimizer**: (Specify, e.g., Adam, SGD).
 
 ## 4. User Guide
