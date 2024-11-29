@@ -9,3 +9,5 @@ wandb/
 *.pth
 *.csv
 *.safetensors
+checkpoints/
+output/
