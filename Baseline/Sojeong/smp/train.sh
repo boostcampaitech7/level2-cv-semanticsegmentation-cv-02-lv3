@@ -1,18 +1,18 @@
-python train.py \
-    --epochs 80 \
-    --batch_size 1 \
-    --valid_batch_size 1 \
-    --model_name tu-hrnet_w48 \
-    --val_every 10 \
-    --encoder_weights imagenet \
-    --seg_model UnetPlusPlus \
-    --resize 768 768 \
+# python train.py \
+#     --epochs 80 \
+#     --batch_size 1 \
+#     --valid_batch_size 1 \
+#     --model_name tu-hrnet_w48 \
+#     --val_every 10 \
+#     --encoder_weights imagenet \
+#     --seg_model UnetPlusPlus \
+#     --resize 768 768 \
 
-python inference.py \
+python inference2.py \
     --model_name tu-hrnet_w48 \
     --seg_model UnetPlusPlus \
     --resize 768 768 \
-    --train_batch 1 \
+    #--train_batch 2 \
 # chmod +x train.sh
 # ./train.sh
 
