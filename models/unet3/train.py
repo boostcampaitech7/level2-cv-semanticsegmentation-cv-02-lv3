@@ -1,5 +1,12 @@
 # python native
 import os
+import sys
+import importlib
+import inspect
+
+# 현재 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import json
 import random
 import datetime
@@ -35,8 +42,7 @@ import wandb
 import pdb
 
 from loss import *
-import importlib
-import inspect
+
 
 
 if __name__ == "__main__":
