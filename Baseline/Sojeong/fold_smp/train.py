@@ -58,7 +58,7 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    wandb.init(entity="luckyvicky",project="segmentation", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}_fold{args.fold}_hybrid2",config={
+    wandb.init(entity="",project="", name=f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.batch_size}_fold{args.fold}_hybrid2",config={
         "epochs": args.epochs,
         "learning_rate": args.lr,
         "batch_size": args.batch_size,
@@ -94,7 +94,6 @@ split_file = args.json_dir+f'/fold_{args.fold}.json'
 
 
 # dataset
-#tf = A.Resize(512, 512)
 resize_height, resize_width = args.resize
 train_tf = A.Compose(
             [
@@ -151,6 +150,7 @@ else:
 #criterion = nn.BCEWithLogitsLoss()
 #criterion = HybridLoss(alpha=0.75, gamma=2.0, weight_bce=0.7, weight_focal=0.3)
 criterion = BCEDiceLoss(weight_bce=0.5, weight_dice=0.5)
+
 # Optimizer를 정의합니다.
 optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
 
