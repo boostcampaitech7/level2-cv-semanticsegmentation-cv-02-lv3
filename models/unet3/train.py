@@ -62,6 +62,9 @@ if __name__ == "__main__":
     parser.add_argument('--class_weights', type=int, default=3, 
                         choices=[1, 2, 3], 
                         help='Class weight scheme to use (1, 2, or 3)')
+    parser.add_argument('--image_size', type=int, default=512, 
+                        choices=[448, 512, 616, 768, 1024], 
+                        help='Image size (default: 512)')
     
     args = parser.parse_args()
 
@@ -106,7 +109,7 @@ def set_seed():
 split_file = args.json_dir+f'/fold_{args.fold}.json'
 
 # dataset
-tf = A.Resize(512, 512)
+tf = A.Resize(args.image_size, args.image_size)
 train_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=True, transforms=tf, split_file=split_file)
 valid_dataset = XRayDataset(image_root=args.image_root, label_root=args.label_root, is_train=False, transforms=tf, split_file=split_file)
 
