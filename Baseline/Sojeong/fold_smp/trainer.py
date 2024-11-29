@@ -59,11 +59,10 @@ def validation(epoch, model, data_loader, criterion, thr=0.5):
         cnt = 0
 
         for step, (images, masks) in tqdm(enumerate(data_loader), total=len(data_loader)):
-            images, masks = images.cuda(), masks.cuda()         
+            images, masks = images.cuda(), masks.cuda()   
             model = model.cuda()
             
-            outputs = model(images)#['out']
-            
+            outputs = model(images)
             output_h, output_w = outputs.size(-2), outputs.size(-1)
             mask_h, mask_w = masks.size(-2), masks.size(-1)
             
@@ -147,12 +146,7 @@ def train(model, data_loader, val_loader, criterion, optimizer, num_epochs, val_
                 print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
                 print(f"Save model in {saved_dir}")
                 best_dice = dice
-                save_model(model, saved_dir,  f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_best_model.pt")
-
-        # 10 epoch마다 모델 저장
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch {epoch + 1}: Saving model checkpoint.")
-            save_model(model, saved_dir, f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}_epoch{epoch + 1}.pt")
+                save_model(model, saved_dir,  f"{seg_model}_{model_name}_{resize}_batch{batch_size}_fold{fold}__hybrid2_best_model.pt")
 
 # mask map으로 나오는 인퍼런스 결과를 RLE로 인코딩 합니다.
 

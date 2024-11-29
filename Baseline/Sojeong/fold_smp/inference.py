@@ -32,7 +32,7 @@ from trainer import test
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train segmentation model")
-    parser.add_argument('--image_root', type=str,default='/data/ephemeral/home/data/test/DCM',help='image root')
+    parser.add_argument('--image_root', type=str,default='../test/DCM',help='image root')
     parser.add_argument('--saved_dir', type=str, default='checkpoints',help='model checkpoint save')
     parser.add_argument('--model_name', type=str, default='resnet101', help='model name')
     parser.add_argument('--batch_size',type=int,default=8,help='batch_size')
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 if not os.path.exists('output'):                                                           
     os.makedirs('output')
 
-model = torch.load(os.path.join(args.saved_dir, f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_fold{args.fold}_best_model.pt"))
+model = torch.load(os.path.join(args.saved_dir, f"{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_fold{args.fold}__hybrid2_best_model.pt"))
 
 tf = A.Resize(args.resize[0], args.resize[1])
 
@@ -72,6 +72,5 @@ df = pd.DataFrame({
     "rle": rles,
 })
 
-df.to_csv(f"output/{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_fold{args.fold}_output.csv", index=False)
+df.to_csv(f"output/{args.seg_model}_{args.model_name}_{args.resize}_batch{args.train_batch}_fold{args.fold}__hybrid2_output.csv", index=False)
 
-# python inference.py

@@ -38,7 +38,7 @@ CLASS2IND = {v: i for i, v in enumerate(CLASSES)}
 
 
 class XRayDataset(Dataset):
-    def __init__(self, image_root="train/DCM", label_root="train/outputs_json", is_train=True, transforms=None,split_file=None):
+    def __init__(self, image_root="image_path", label_root="label_path", is_train=True, transforms=None,split_file=None):
         self.image_root = image_root
         self.label_root = label_root
 
@@ -83,9 +83,7 @@ class XRayDataset(Dataset):
         image_path = os.path.join(self.image_root, image_name)
         
         image = cv2.imread(image_path)
-        # image = image / 255.
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # RGB로 변환
-        image = (image / 255.).astype(np.float32)       # 타입 변환
+        image = image / 255.
         
         label_name = self.labelnames[item]
         label_path = os.path.join(self.label_root, label_name)
@@ -129,7 +127,7 @@ class XRayDataset(Dataset):
 
 
 class XRayInferenceDataset(Dataset):
-    def __init__(self,image_root="train/DCM", transforms=None):
+    def __init__(self,image_root="image_path", transforms=None):
         self.image_root=image_root
 
         pngs = {
