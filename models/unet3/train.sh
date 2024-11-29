@@ -11,8 +11,10 @@ LABEL_ROOT="/data/ephemeral/home/data/train/outputs_json"     # 레이블 데이
 SAVED_DIR="checkpoints"      # 모델 체크포인트 저장 경로
 MODEL_NAME="unet+++"        # 모델 이름
 MODEL_CLASS="UNet_3Plus"       # 사용할 모델 클래스
-LOSS_FUNCTION="bce+iou+ssim"   # 손실 함수 선택 (bce, bce+iou+ssim, focal+iou+ssim)
+LOSS_FUNCTION="bce+dice"   # 손실 함수 선택 (bce, bce+iou+ssim, focal+iou+ssim)
 OPTIMIZER="adam"               # 옵티마이저 선택 (adam, rmsprop)
+#class_weights=${1:-1}  # 사용자 입력 (기본값: 1)
+CLASS_WEIGHTS=${1:-1} # 사용자 입력 (기본값: 1)
 
 # Run training
 python train.py \
@@ -27,5 +29,6 @@ python train.py \
     --model_name $MODEL_NAME \
     --model_class $MODEL_CLASS \
     --loss_function $LOSS_FUNCTION \
-    --optimizer $OPTIMIZER
+    --optimizer $OPTIMIZER \
+    --class_weights $CLASS_WEIGHTS \
 

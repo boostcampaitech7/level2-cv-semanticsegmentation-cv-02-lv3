@@ -54,11 +54,14 @@ if __name__ == "__main__":
                         choices=['UNet_3Plus', 'UNet_3Plus_DeepSup', 'UNet_3Plus_DeepSup_CGM'], 
                         help='Model class to use')
     parser.add_argument('--loss_function', type=str, default='bce', 
-                        choices=['bce', 'bce+iou+ssim', 'focal+iou+ssim'], 
-                        help='Loss function to use: bce, bce+iou+ssim, or focal+iou+ssim')
+                        choices=['bce', 'bce+iou+ssim', 'focal+iou+ssim', 'tversky', 'bce+focal', 'bce+dice'], 
+                        help='Loss function to use')
     parser.add_argument('--optimizer', type=str, default='adam', 
                         choices=['adam', 'rmsprop'], 
                         help='Optimizer to use: adam or rmsprop')
+    parser.add_argument('--class_weights', type=int, default=3, 
+                        choices=[1, 2, 3], 
+                        help='Class weight scheme to use (1, 2, or 3)')
     
     args = parser.parse_args()
 
@@ -67,13 +70,13 @@ if __name__ == "__main__":
     wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    #wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
-    #    "epochs": args.epochs,
-    #    "learning_rate": args.lr,
-    #    "batch_size": args.batch_size,
-    #    "valid_batch_size": args.valid_batch_size,
-    #    "model_name": args.model_name
-    #})
+    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
+       "epochs": args.epochs,
+       "learning_rate": args.lr,
+       "batch_size": args.batch_size,
+       "valid_batch_size": args.valid_batch_size,
+       "model_name": args.model_name
+    })
 
 
 if not os.path.exists(args.saved_dir):                                                           
@@ -137,13 +140,40 @@ elif args.model_class == 'UNet_3Plus_DeepSup_CGM':
 else:
     raise ValueError(f"Unsupported model class: {args.model_class}")
 
+#weights 선택 (1차, 2차, 3차 가중치)
+#1,2는 dice 점수 기반, 3차는 넓이 기반
+if args.class_weights == 1:
+    class_weights = torch.tensor([
+        1.5, 0.8, 0.8, 1.5, 1.25, 0.8, 0.8, 1.5, 1, 0.8, 0.8, 1.5, 1, 0.8, 0.8, 1.5, 1.25, 0.8, 0.8, 1.5,
+        1.5, 1.25, 1.25, 1.25, 1.25, 1.5, 1.7, 0.8, 0.8
+    ]).cuda()
+elif args.class_weights == 2:
+    class_weights = torch.tensor([
+        1.75, 0.8, 0.8, 1.75, 1.5, 0.8, 0.8, 1.75, 1.25, 0.8, 0.8, 1.75, 1.25, 0.8, 0.8, 1.75, 1.75, 0.8, 0.8,
+        1.75, 2.5, 1.5, 1.75, 1.5, 1.5, 1.75, 2.75, 0.8, 0.8
+    ]).cuda()
+elif args.class_weights == 3:
+    class_weights = torch.tensor([
+        8.87, 4.25, 2.59, 13.45, 6.86, 3.18, 1.93, 11.45, 5.39, 2.85, 2.14, 11.58, 6.16, 3.37, 2.84, 16.94,
+        10.93, 4.79, 2.81, 7.64, 12.60, 4.52, 6.07, 6.50, 8.76, 9.23, 16.02, 1.00, 1.92
+    ]).cuda()
+
+#(1, C, 1, 1)로 브로드캐스팅 준비
+class_weights = class_weights.view(1, len(CLASSES), 1, 1)
+
 # Loss function 선택
 if args.loss_function == 'bce':
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.BCEWithLogitsLoss(weight=class_weights)
 elif args.loss_function == 'bce+iou+ssim':
     criterion = BCEWithIoUAndSSIM()
 elif args.loss_function == 'focal+iou+ssim':
     criterion = FocalLossWithIoUAndSSIM()
+elif args.loss_function == 'tversky':
+    criterion = TverskyLoss(alpha=0.5, beta=0.5, smooth=1e-6)
+elif args.loss_function == 'bce+focal':
+    criterion = partial(combined_bce_focal_loss, class_weights=class_weights, focal_weight=0.5)
+elif args.loss_function == 'bce+dice':
+    criterion = partial(combined_bce_dice, class_weights=class_weights, bce_weight=0.5)
 else:
     raise ValueError(f"Unsupported loss function: {args.loss_function}")
 
@@ -161,4 +191,4 @@ set_seed()
 
 train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
 
-#wandb.finish()
+wandb.finish()

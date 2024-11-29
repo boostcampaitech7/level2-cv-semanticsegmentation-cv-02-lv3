@@ -34,6 +34,41 @@ class FocalLoss(nn.Module):
         return loss.mean()
 
 
+def combined_bce_focal_loss(pred, label, class_weights, focal_weight=0.5, gamma=2.0, alpha=0.7, epsilon=1e-9):
+    """
+    BCE Loss (클래스 가중치 포함)와 Focal Loss를 결합한 손실 함수.
+
+    Args:
+        pred (torch.Tensor): 모델의 예측값 (logits, shape: (N, C, H, W)).
+        label (torch.Tensor): 타겟값 (shape: (N, C, H, W)).
+        class_weights (torch.Tensor): 각 클래스의 가중치 텐서 (shape: (1, C, 1, 1)).
+        focal_weight (float): Focal Loss의 가중치.
+        gamma (float): Focal Loss의 감쇠 파라미터.
+        alpha (float): Focal Loss의 균형 파라미터.
+        epsilon (float): 수치 안정성을 위한 작은 값.
+
+    Returns:
+        torch.Tensor: 결합 손실 값 (scalar).
+    """
+    # BCE Loss 계산 (클래스 가중치 적용)
+    bce_loss = F.binary_cross_entropy_with_logits(
+        pred, label, weight=class_weights, reduction='none'
+    )
+    bce_loss = bce_loss.mean()
+
+    # Focal Loss 계산
+    label = label.float()
+    y_pred = torch.sigmoid(pred)  # Focal Loss에도 Sigmoid 적용
+    ce = -label * torch.log(y_pred + epsilon)  # Cross-Entropy
+    weight = (1 - y_pred) ** gamma  # Focal Loss 가중치 계산
+    focal_loss = alpha * weight * ce
+    focal_loss = focal_loss.mean()
+
+    # BCE Loss와 Focal Loss 결합
+    combined_loss = (1 - focal_weight) * bce_loss + focal_weight * focal_loss
+
+    return combined_loss
+
 
 # IoU Loss 계산 함수
 def _iou(pred, target, size_average=True):
@@ -159,24 +194,40 @@ def msssim_loss(pred, label):
     #print("msssim_loss:", msssim_loss.item())
     return msssim_loss
 
+##################################################################################
+#combined_bce_dice위해 이걸 사용할 것
+def dice_loss(pred, target, smooth = 1.):
+    pred = pred.contiguous()
+    target = target.contiguous()   
+    intersection = (pred * target).sum(dim=2).sum(dim=2)
+    loss = (1 - ((2. * intersection + smooth) / (pred.sum(dim=2).sum(dim=2) +   target.sum(dim=2).sum(dim=2) + smooth)))
+    return loss.mean()
+
+def combined_bce_dice(pred, target, class_weights, bce_weight = 0.5):
+    bce = F.binary_cross_entropy_with_logits(pred, target, weight=class_weights)
+    pred = F.sigmoid(pred)
+    dice = dice_loss(pred, target)
+    loss = bce * bce_weight + dice * (1 - bce_weight)
+    return loss
+###################################################################################
 
 # Dice Loss 계산 함수
-def dice_loss(pred, label, smooth=1.0):
-    """
-    Dice Loss
-    Args:
-        pred (torch.Tensor): 모델의 예측값 (B, C, H, W) 또는 (B, 1, H, W)
-        label (torch.Tensor): 실제 레이블 (B, C, H, W) 또는 (B, 1, H, W)
-        smooth (float): smoothing factor to avoid division by zero
-    Returns:
-        torch.Tensor: Dice Loss
-    """
-    pred = torch.sigmoid(pred)  # 예측값에 sigmoid 적용
-    intersection = torch.sum(pred * label, dim=(2, 3))
-    union = torch.sum(pred, dim=(2, 3)) + torch.sum(label, dim=(2, 3))
-    dice_score = (2.0 * intersection + smooth) / (union + smooth)
-    dice_loss = 1.0 - dice_score  # Dice Coefficient를 1에서 뺌 (Loss)
-    return torch.mean(dice_loss)
+#def dice_loss(pred, label, smooth=1.0):
+#    """
+#    Dice Loss
+#    Args:
+#        pred (torch.Tensor): 모델의 예측값 (B, C, H, W) 또는 (B, 1, H, W)
+#        label (torch.Tensor): 실제 레이블 (B, C, H, W) 또는 (B, 1, H, W)
+#        smooth (float): smoothing factor to avoid division by zero
+#    Returns:
+#        torch.Tensor: Dice Loss
+#    """
+#    pred = torch.sigmoid(pred)  # 예측값에 sigmoid 적용
+#    intersection = torch.sum(pred * label, dim=(2, 3))
+#    union = torch.sum(pred, dim=(2, 3)) + torch.sum(label, dim=(2, 3))
+#    dice_score = (2.0 * intersection + smooth) / (union + smooth)
+#    dice_loss = 1.0 - dice_score  # Dice Coefficient를 1에서 뺌 (Loss)
+#    return torch.mean(dice_loss)
 
 
 class DiceLoss(nn.Module):
@@ -193,7 +244,7 @@ class DiceLoss(nn.Module):
 
 
 class TverskyLoss(nn.Module):
-    def __init__(self, alpha=0.5, beta=0.5, smooth=1.0):
+    def __init__(self, alpha=0.5, beta=0.5, smooth=0.001): 
         super(TverskyLoss, self).__init__()
         self.alpha = alpha
         self.beta = beta
