@@ -66,7 +66,14 @@ def inference(pretrained_weight, data_path):
     return df
     
 if __name__ == "__main__":
-    pretrained_weight = "your pretrained weight path"
-    test_data = "yout test data path" 
-    df = inference(pretrained_weight, test_data)
-    df_to_csv(df, "submission.csv")
+    parser = argparse.ArgumentParser(description="Run inference with a YOLO model and save results.")
+    parser.add_argument("--pretrained_weight", type=str, required=True, help="Path to the pretrained YOLO model weights.")
+    parser.add_argument("--data_path", type=str, required=True, help="Path to the directory containing test images.")
+    parser.add_argument("--output_csv", type=str, default="submission.csv", help="Path to resulting CSV file (default: submission.csv).")
+    args = parser.parse_args()
+
+    # Perform inference and save results
+    df = inference(args.pretrained_weight, args.data_path)
+    df_to_csv(df, args.output_csv)
+    
+    print(f"Inference completed and results saved to {args.output_csv}")
