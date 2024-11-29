@@ -51,21 +51,27 @@ if __name__ == "__main__":
     parser.add_argument('--model_class', type=str, default='UNet_3Plus', 
                         choices=['UNet_3Plus', 'UNet_3Plus_DeepSup', 'UNet_3Plus_DeepSup_CGM'], 
                         help='Model class to use')
+    parser.add_argument('--loss_function', type=str, default='bce', 
+                        choices=['bce', 'combined'], 
+                        help='Loss function to use: bce or combined')
+    parser.add_argument('--optimizer', type=str, default='adam', 
+                        choices=['adam', 'rmsprop'], 
+                        help='Optimizer to use: adam or rmsprop')
     
     args = parser.parse_args()
 
-    #load_dotenv()
-    #wandb_api_key = os.getenv('WANDB_API_KEY')
-    #wandb.login(key=wandb_api_key)
+    load_dotenv()
+    wandb_api_key = os.getenv('WANDB_API_KEY')
+    wandb.login(key=wandb_api_key)
 
     # wandb 초기화
-    #wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
-    #    "epochs": args.epochs,
-    #    "learning_rate": args.lr,
-    #    "batch_size": args.batch_size,
-    #    "valid_batch_size": args.valid_batch_size,
-    #    "model_name": args.model_name
-    #})
+    wandb.init(entity="luckyvicky",project="segmentation", name=args.model_name,config={
+       "epochs": args.epochs,
+       "learning_rate": args.lr,
+       "batch_size": args.batch_size,
+       "valid_batch_size": args.valid_batch_size,
+       "model_name": args.model_name
+    })
 
 
 if not os.path.exists(args.saved_dir):                                                           
@@ -115,6 +121,7 @@ valid_loader = DataLoader(
 
 # model
 # 입력 채널: 3 (RGB 이미지), 출력 클래스 수: 29 (다중 클래스 분할)
+# Model selection based on `--model_class`
 if args.model_class == 'UNet_3Plus':
     model = UNet_3Plus(in_channels=3, n_classes=29, feature_scale=4, is_deconv=True, is_batchnorm=True)
 elif args.model_class == 'UNet_3Plus_DeepSup':
@@ -124,16 +131,26 @@ elif args.model_class == 'UNet_3Plus_DeepSup_CGM':
 else:
     raise ValueError(f"Unsupported model class: {args.model_class}")
 
-# Loss function
-criterion = nn.BCEWithLogitsLoss()
+# Loss function 선택
+if args.loss_function == 'bce':
+    criterion = nn.BCEWithLogitsLoss()
+elif args.loss_function == 'combined':
+    criterion = combined_loss_with_dynamic_weights
+else:
+    raise ValueError(f"Unsupported loss function: {args.loss_function}")
+
 
 # Optimizer
-#optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
-optimizer = optim.RMSprop(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
+if args.optimizer == 'adam':
+    optimizer = optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
+elif args.optimizer == 'rmsprop':
+    optimizer = optim.RMSprop(params=model.parameters(), lr=args.lr, weight_decay=1e-6)
+else:
+    raise ValueError(f"Unsupported optimizer: {args.optimizer}")
 
 # 시드를 설정합니다.
 set_seed()
 
 train(model, train_loader, valid_loader, criterion, optimizer, args.epochs, args.val_every, args.saved_dir, args.model_name)
 
-#wandb.finish()
+wandb.finish()

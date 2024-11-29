@@ -8,4 +8,6 @@ python train.py \
     --valid_batch_size 1 \
     --val_every 1 \
     --model_class UNet_3Plus \
-    --model_name "unet3plus_baseline"
+    --loss_function combined \
+    --optimizer adam \
+    --model_name "unet3plus_combined_loss_adam"
