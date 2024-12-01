@@ -6,10 +6,10 @@
 <div align="center">
 
 [👀Model](#final-model) |
-[🤔Issues](https://github.com/boostcampaitech7/level2-objectdetection-cv-07/issues) | 
+[🤔Issues](https://github.com/boostcampaitech7/level2-cv-semanticsegmentation-cv-02-lv3/issues) | 
 [🚀SMP](https://github.com/qubvel-org/segmentation_models.pytorch) |
 [🤗Transformers](https://huggingface.co/docs/transformers/en/index) |
-[💎ultralytics](https://github.com/ultralytics/ultralytics)
+[💎Ultralytics](https://github.com/ultralytics/ultralytics)
 </div>
 
 ## Introduction
