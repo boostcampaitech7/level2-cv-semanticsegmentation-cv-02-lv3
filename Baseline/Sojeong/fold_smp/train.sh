@@ -19,4 +19,3 @@ python inference.py \
     --resize 1024 1024 \
     --train_batch 2 \
     --fold 1 \
-

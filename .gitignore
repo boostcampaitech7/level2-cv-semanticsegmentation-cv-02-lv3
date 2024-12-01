@@ -8,3 +8,4 @@ wandb/
 checkpoints/
 output/
 logs/
+pre_trained/
