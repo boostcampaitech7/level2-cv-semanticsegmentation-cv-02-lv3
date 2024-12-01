@@ -1,0 +1,9 @@
+{
+    "run_name_format": "ensemble_crop_{crop_type}_TTA_{TTA}_{n_models}-models",
+    "crop_type": "arm",
+    "model_dir_path_formats": [
+        "your_model_path/your_model_name_crop_{crop_type}_fold0",
+        "your_model_path/your_model_name_crop_{crop_type}_fold1"
+    ],
+    "TTA": true
+}
