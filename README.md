@@ -34,11 +34,11 @@ Model | tta | 5-fold ensemble | Public score
 -- | -- | -- | --
 U-Net++ | o | soft-voting | 0.9734
 HRNetv2 | o | soft-voting | 0.9681
-DeepLabV3+ | o | soft-voting | 0.9702
+DeepLabv3+ | o | soft-voting | 0.9702
 U-Net3+ | x | soft-voting | 0.9574
-yolov11 | x | hard-voting | 0.9442
-transformers(Upernet,mit) | x | soft-voting | 0.9728
-BeiT. | o | soft-voting | 0.9723
+YOLO11 | x | hard-voting | 0.9442
+transformers(UperNet,SegFormer) | x | soft-voting | 0.9728
+BEiT | o | soft-voting | 0.9723
 
 ## Data
 ```
