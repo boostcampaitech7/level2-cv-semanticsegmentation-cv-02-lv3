@@ -27,7 +27,7 @@
 <img width="962" alt="최종 public 리더보드 순위" src="https://github.com/user-attachments/assets/11fca078-8725-42e1-9bf3-ddc6147bc68b">
 
 ## Final Model
-최종 모델은 U-Net++, HRNetv2, DeepLabV3+, U-Net3+, YOLO11, Upernet, mit, BeiT의 앙상블로 구성되었습니다. <br> 각 모델의 예측 결과를 바탕으로 hard voting을 적용하였고 그 결과, 최종 성능으로 **dice coefficient 0.9760**를 달성했습니다.<br>
+최종 모델은 U-Net++, HRNetv2, DeepLabv3+, U-Net3+, YOLO11, UperNet, SegFormer, BEiT 앙상블로 구성되었습니다. <br> 각 모델의 예측 결과를 바탕으로 hard voting을 적용하였고 그 결과, 최종 성능으로 **dice coefficient 0.9760**를 달성했습니다.<br>
 
 
 Model | tta | 5-fold ensemble | Public score
