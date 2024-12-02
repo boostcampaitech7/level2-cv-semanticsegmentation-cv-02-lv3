@@ -1,0 +1,21 @@
+{
+    "run_name_format": "{model_name}_{crop_type}",
+    "model_name": "your_model_name",
+    "num_workers": 4,
+    "batch_size": 8,
+    "step_batch_size": 2,
+    "learning_rate": 1e-4,
+    "max_epoch": 50,
+    "class_weights": null,
+    "image_size": null,
+    "crop_type": "crop_arm",
+    "train_transform_type": 1,
+    "data_dir_path": "your_data_dir_path",
+    "train_json_path": "your_train_json_path",
+    "valid_json_path": "your_valid_json_path",
+    "test_json_path": "your_test_json_path",
+    "crop_info_path": "your_crop_info_path",
+    "trained_path": null,
+    "device": "cuda",
+    "debug": false
+}
