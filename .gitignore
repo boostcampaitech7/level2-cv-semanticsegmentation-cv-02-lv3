@@ -1,8 +1,15 @@
+checkpoints/
+output/
+logs/
 __pycache__/
 wandb/
 .env
 .png
 *.pt
 *.pth
+*.csv
+*.safetensors
 checkpoints/
 output/
+logs/
+pre_trained/
